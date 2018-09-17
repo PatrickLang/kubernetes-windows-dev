@@ -94,6 +94,18 @@ The easiest way to set up a VM is to get [Vagrant](https://vagrantup.com), then 
 
 #### Kubernetes Enlistment for dev box
 
+Since you need to build on a Linux machine, I have found that it's easiest to push all changes to a private branch, pull that in the build VM, then build.
+
+I use a 3-deep branching strategy:
+1. Fetch an upstream branch such as master or release-1.12
+2. Branch off that to aggregate open PRs
+3. Use a 3rd branch for my current changes
+
+As PRs are merged, I rebase all three in order. #1 will never have conflicts. If #2 has a conflict, the open PR will also have a conflict, so wait for it to be fixed there and do a new cherry-pick. #3 - I fix conflicts, squash and update my open PR if needed.
+
+
+Steps to create the branches
+
 1. Fork the Kubernetes repo in GitHub.
 
 2. Clone your fork of the Kubernetes repo
@@ -115,23 +127,48 @@ cd kubernetes
 git remote add upstream https://github.com/kubernetes/kubernetes.git
 ```
 
-4. Make a working branch
+4. Fetch an upstream branch, and push it to your origin repo
 
-> TODO
+```bash
+git fetch upstream release-1.12
+git checkout release-1.12
+git push -u origin release-1.12
+```
+
+4. (optional) Make a cherry-pick branch
+
+```bash
+git checkout -b 1.12-cherrypick
+git push --set-upstream origin 1.12-cherrypick
+```
 
 5. (optional) Cherry-pick a PR that hasn't been merged.
 
-> TODO: finish this
+This example uses https://github.com/kubernetes/kubernetes/pull/67435. You need two pieces of information from the PR:
+
+- The originating user (feiskyer) and branch (dns-cap)
+- The commit IDs (0dc1ac03df89295c3bf5ddb7122270febe12eca2 and 3cb62394911261e3d8025d191a3ca80e6a712a67)
+
+Create a new remote with their username, fetch their branch, cherry-pick the commits, then push to your cherrypick branch.
 
 ```bash
-git remote add ...
-git fetch ...
-git cherry-pick ...
+git remote add feiskyer https://github.com/feiskyer/kubernetes.git
+git fetch feiskyer dns-cap
+git cherry-pick 0dc1ac03df89295c3bf5ddb7122270febe12eca2
+git cherry-pick 3cb62394911261e3d8025d191a3ca80e6a712a67
+git push
+```
+
+6. Create a branch for your PR
+
+```bash
+git checkout -b mybugfix
+git push --set-upstream origin mybugfix
 ```
 
 #### Kubernetes Enlistment for build VM
 
-You only need to set up a remote to the branch you're building. This uses https, which will avoid needing to log into Git since you only need read access to your branch.
+You only need to set up a remote to the branch you're building. It's easist to use https, which will avoid needing to log into Git since you only need read access for your public branch.
 
 ```bash
 mkdir -p ~/go/src/k8s.io/
@@ -139,9 +176,11 @@ mkdir -p ~/go/src/k8s.io/
 # clone your fork as origin
 cd ~/go/src/k8s.io
 git clone https://github.com/<your_github_username>/kubernetes.git
+cd kubernetes
 
 # change to your working branch
-# TODO
+git fetch origin mybugfix
+git checkout mybugfix
 ```
 
 
