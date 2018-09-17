@@ -15,6 +15,8 @@ Vagrant uses a simple sequence of commands to handle VM management and running t
 
 First, [Install Hyper-V on Windows 10](https://docs.microsoft.com/en-us/virtualization/hyper-v-on-windows/quick-start/enable-hyper-v), and be sure [Vagrant](https://vagrantup.com) is installed.
 
+This VM configures a 60GB virtual disk, so make sure you have at least that much free. If you don't have that much free on C:, then copy this folder to another drive and run it there. Vagrant will place the VM in that path.
+
 1. From an elevated prompt, run `vagrant up --provider hyperv`
 2. `vagrant ssh` - make sure you can connect. If you get a prompt like `vagrant@k8s-dev:~$`, then you're good to go. Run `exit` to disconnect.
 

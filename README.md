@@ -154,13 +154,50 @@ From the build VM:
 
 ```bash
 cd ~/go/src/k8s.io/kubernetes
-./build/run.sh make cross
+./build/run.sh make cross KUBE_BUILD_PLATFORMS=windows/amd64
 ```
 
-For more details, check out the [Building Kubernetes](https://github.com/kubernetes/kubernetes/blob/master/build/README.md)
+It will scroll a lot as the API files are scanned, then eventually start building. Each build target has output similar to this accompanied with a few minutes of waiting.
 
+```none
+I0917 21:53:22.103338   15972 main.go:75] Completed successfully.
+No changes in generated bindata file: test/e2e/generated/bindata.go
+No changes in generated bindata file: pkg/generated/bindata.go
+Go version: go version go1.10.3 linux/amd64
++++ [0917 21:53:22] Building go targets for windows/amd64:
+    cmd/kube-proxy
+    cmd/kubeadm
+    cmd/kubelet
+Env for windows/amd64: GOOS=windows GOARCH=amd64 GOROOT=/usr/local/go CGO_ENABLED= CC=
+Coverage is disabled.
+```
+
+After the last binary is built, it will copy binaries out of the container into the VM:
+
+```none
++++ [0917 21:56:36] Placing binaries
++++ [0917 21:56:58] Syncing out of container
++++ [0917 21:56:58] Stopping any currently running rsyncd container
++++ [0917 21:56:59] Starting rsyncd container
++++ [0917 21:57:00] Running rsync
++++ [0917 21:57:22] Stopping any currently running rsyncd container
+```
+
+Run `ls _output/dockerized/bin/windows/amd64/` to see what was built.
+
+For more details on building, check out the [Building Kubernetes](https://github.com/kubernetes/kubernetes/blob/master/build/README.md)
+
+#### Copying files from the build VM
+
+Now, it's time to use SCP to copy the binaries out. 
+
+1. Get the SSH config with `vagrant ssh-config | Out-File -Encoding ascii k8s-dev.ssh.config`
+2. Copy the files out with SCP `scp -F .\k8s-dev.ssh.config k8s-dev:~/go/src/k8s.io/kubernetes/_output/dockerized/bin/windows/amd64/* .`
 
 ### Upgrading in-place
+
+
+
 
 ## Testing
 
