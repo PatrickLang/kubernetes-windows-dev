@@ -8,6 +8,14 @@ Windows has it's own Kubernetes special interest group (SIG). The weekly meeting
 
 Major features and bugs are tracked in [Trello](https://trello.com/b/rjTqrwjl/windows-k8s-roadmap), and updated in the weekly SIG-Windows meetings. If the items linked to the cards aren't assigned, feel free to assign them to yourself and get started hacking on them. For more up to date details, you can query for open issues & PRs with the [sig/windows label](https://github.com/kubernetes/kubernetes/labels/sig%2Fwindows) in kubernetes/kubernetes.
 
+### Required tools
+
+- [Git](https://git-scm.com/)
+- [Docker Community Edition](https://store.docker.com/search?type=edition&offering=community)
+- (optional but awesome) [Visual Studio Code](https://code.visualstudio.com/)
+
+If you're using Windows, use "Git Bash" as your command-line environment for building. It can run the same bash scripts as on Linux & Mac, and will run the build containers using Docker for Windows.
+
 ## Building a cluster
 
 [ACS-Engine](https://github.com/Azure/acs-engine/) is what I typically use to deploy clusters. There's a [walkthrough](https://github.com/Azure/acs-engine/blob/master/docs/kubernetes/windows.md) available that I recommend for your first deployment. The rest of this guide assumes you're using acs-engine, but the steps can easily be adapted to the other deployments.
@@ -18,25 +26,51 @@ Major features and bugs are tracked in [Trello](https://trello.com/b/rjTqrwjl/wi
 
 ### Hacking ACS-Engine
 
-> TODO - short and simple steps
+ACS-Engine work items for Windows are tracked in a GitHub [project](https://github.com/Azure/acs-engine/projects/3). Feel free to grab one if there's a feature or bug you need to work on.
+
+### Enlistment
+
+
+1. Fork the [acs-engine](https://github.com/Azure/acs-engine) repo in GitHub.
+
+2. Clone your fork of the Kubernetes repo
+
+```bash
+# clone your fork as origin
+git clone https://github.com/<your_github_username>/acs-engine.git
+```
+
+3. Set upstream to the main Kubernetes repo.
+
+```bash
+cd acs-engine
+# add upstream repo
+git remote add upstream https://github.com/Azure/acs-engine.git
+```
+
+> TODO: 4. (optional) Cherry-pick a PR that hasn't been merged.
+
+```bash
+git remote add ...
+git fetch ...
+git cherry-pick ...
+```
+
+### Building
+
+Windows: run `.\makedev.ps1` in PowerShell
+
+Mac / Linux: run `make dev`
+
+> TODO: build steps, cross-build steps
 
 For more details, see the full [developers guide](https://github.com/Azure/acs-engine/blob/master/docs/developers.md)
 
-## Building Windows binaries
+## Building Windows Kubernetes binaries
 
 Windows development is focused on the node (kubelet, kube-proxy), and client (kubectl). So far there hasn't been any push for running the other components (apiserver, controller-manager, scheduler, kube-dns) on Windows. Those components still run on Linux nodes. Most Windows features and bugfixes will not require any changes to the Linux components.
 
 > **Welcome contribution** - CoreDNS has builds available on Windows. It should work, but a setup guide and deployment template are needed.
-
-
-### Required tools
-
-- [Git](https://git-scm.com/)
-- [Docker Community Edition](https://store.docker.com/search?type=edition&offering=community)
-- (optional but awesome) [Visual Studio Code](https://code.visualstudio.com/)
-
-If you're using Windows, use "Git Bash" as your command-line environment for building. It can run the same bash scripts as on Linux & Mac, and will run the build containers using Docker for Windows.
-
 
 ### Enlistment
 
