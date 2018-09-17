@@ -147,6 +147,9 @@ git clone https://github.com/<your_github_username>/kubernetes.git
 
 ### Kubernetes Build
 
+Connect to the build VM with `vagrant ssh`. If you haven't already started a `tmux` session, run `tmux` to start one. It will hold the scrollback buffer, and let you disconnect and reconnect if needed without stopping a build. You can detach with _Ctrl-B, d_, and reattach later using `tmux list-sessions` to get the number, then `tmux attach-session -t #` to reconnect to it.
+
+
 From the build VM:
 
 ```bash
