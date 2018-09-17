@@ -1,15 +1,15 @@
 #!/usr/bin/env bash
-echo "Starting bootstrap"
+# echo "Starting bootstrap"
 
-systemctl stop apt-daily.service
-systemctl kill --kill-who=all apt-daily.service
+# systemctl stop apt-daily.service
+# systemctl kill --kill-who=all apt-daily.service
 
-# wait until `apt-get updated` has been killed
-while ! (systemctl list-units --all apt-daily.service | fgrep -q dead)
-do
-  echo "apt-daily still running"
-  sleep 1;
-done
+# # wait until `apt-get updated` has been killed
+# while ! (systemctl list-units --all apt-daily.service | fgrep -q dead)
+# do
+#   echo "apt-daily still running"
+#   sleep 1;
+# done
 
 curl -fsSL https://download.docker.com/linux/ubuntu/gpg | sudo apt-key add -
 add-apt-repository \
@@ -19,4 +19,5 @@ add-apt-repository \
 
 apt update
 
-apt install -y git build-essential docker-ce 
+apt install -y git build-essential docker-ce
+sudo usermod -a -G docker vagrant

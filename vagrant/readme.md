@@ -12,4 +12,4 @@ Windows
 
 1. [Install Hyper-V on Windows 10](https://docs.microsoft.com/en-us/virtualization/hyper-v-on-windows/quick-start/enable-hyper-v)
 2. From an elevated prompt, run `vagrant up --provider hyperv`
-3. `vagrant ssh`
+3. `vagrant ssh` - make sure you can connect. If you get a prompt like `vagrant@k8s-dev:~$`, then you're good to go. Run `exit` to disconnect.

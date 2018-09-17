@@ -80,7 +80,7 @@ Windows development is focused on the node (kubelet, kube-proxy), and client (ku
 
 Kubernetes cannot be built on Windows natively, or in a Linux container. For now, the best option is to set up a VM, pull sources, and build there. I typically edit code on my Windows machine with Visual Studio Code (and the Go extension for linting), push to my branch frequently, then pull it in the VM and build. Once I'm done with my changes, I squash the branch, clean up the history, and then submit a PR.
 
-The easiest way to set up a VM is to get [Vagrant](https://vagrantup.com), then 
+The easiest way to set up a VM is to get [Vagrant](https://vagrantup.com), then follow the steps in [vagrant/readme.md](vagrant/readme.md) to start it up.
 
 
 > **Welcome contribution** - update Makefile to work with Docker for Windows
@@ -92,7 +92,7 @@ The easiest way to set up a VM is to get [Vagrant](https://vagrantup.com), then
 >!!! [0917 11:44:01]  1: hack/make-rules/cross.sh:25 source(...)
 >make: *** [build/root/Makefile:482: cross] Error 1
 
-### Kubernetes Enlistment
+#### Kubernetes Enlistment for dev box
 
 1. Fork the Kubernetes repo in GitHub.
 
@@ -115,7 +115,13 @@ cd kubernetes
 git remote add upstream https://github.com/kubernetes/kubernetes.git
 ```
 
-> TODO: 4. (optional) Cherry-pick a PR that hasn't been merged.
+4. Make a working branch
+
+> TODO
+
+5. (optional) Cherry-pick a PR that hasn't been merged.
+
+> TODO: finish this
 
 ```bash
 git remote add ...
@@ -123,8 +129,30 @@ git fetch ...
 git cherry-pick ...
 ```
 
+#### Kubernetes Enlistment for build VM
+
+You only need to set up a remote to the branch you're building. This uses https, which will avoid needing to log into Git since you only need read access to your branch.
+
+```bash
+mkdir -p ~/go/src/k8s.io/
+
+# clone your fork as origin
+cd ~/go/src/k8s.io
+git clone https://github.com/<your_github_username>/kubernetes.git
+
+# change to your working branch
+# TODO
+```
+
 
 ### Kubernetes Build
+
+From the build VM:
+
+```bash
+cd ~/go/src/k8s.io/kubernetes
+./build/run.sh make cross
+```
 
 For more details, check out the [Building Kubernetes](https://github.com/kubernetes/kubernetes/blob/master/build/README.md)
 
