@@ -10,11 +10,32 @@ Major features and bugs are tracked in [Trello](https://trello.com/b/rjTqrwjl/wi
 
 ### Required tools
 
+All platforms:
+
 - [Git](https://git-scm.com/)
 - [Docker Community Edition](https://store.docker.com/search?type=edition&offering=community)
 - (optional but awesome) [Visual Studio Code](https://code.visualstudio.com/)
 
-If you're using Windows, use "Git Bash" as your command-line environment for building. It can run the same bash scripts as on Linux & Mac, and will run the build containers using Docker for Windows.
+If you're using Windows, use "Git Bash" as your command-line environment for building. After adding a few tools, it can run the same bash scripts as on Linux & Mac, and will run the build containers using Docker for Windows.
+
+The first tool is [xz](https://tukaani.org/xz/). Run this from an elevated PowerShell prompt to download and put it where Git Bash will find it:
+
+```powershell
+Start-BitsTransfer https://tukaani.org/xz/xz-5.2.4-windows.zip
+Expand-Archive .\xz-5.2.4-windows.zip
+Move-Item xz-5.2.4-windows\bin_x86-64\* "C:\Program Files\Git\usr\bin"
+```
+
+Next, get `make`. Run this from an elevated Git Bash prompt:
+
+```bash
+cd ~/Downloads
+curl http://repo.msys2.org/msys/x86_64/make-4.2.1-1-x86_64.pkg.tar.xz -o make-4.2.1-1-x86_64.pkg.tar.xz
+xz -d make-4.2.1-1-x86_64.pkg.tar.xz
+cd /
+tar xvf ~/Downloads/make-4.2.1-1-x86_64.pkg.tar
+```
+
 
 ## Building a cluster
 
