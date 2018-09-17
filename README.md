@@ -24,11 +24,11 @@ If you're using Windows, use "Git Bash" as your command-line environment for bui
 
 [Kubernetes on Windows](https://docs.microsoft.com/en-us/virtualization/windowscontainers/kubernetes/getting-started-kubernetes-windows) - with host gateway routing. If you want full control over the whole process or don't want to take a dependency on a cloud provider and want to use the WinCNI reference plugin that's similar to kubenet, use this guide.
 
-### Hacking ACS-Engine
+## Hacking ACS-Engine
 
 ACS-Engine work items for Windows are tracked in a GitHub [project](https://github.com/Azure/acs-engine/projects/3). Feel free to grab one if there's a feature or bug you need to work on.
 
-### Enlistment
+### ACS-Engine Enlistment
 
 
 1. Fork the [acs-engine](https://github.com/Azure/acs-engine) repo in GitHub.
@@ -56,23 +56,43 @@ git fetch ...
 git cherry-pick ...
 ```
 
-### Building
+### ACS-Engine Build
+
+The ACS-Engine dev environment works great in containers. The repo has scripts to start it up:
 
 Windows: run `.\makedev.ps1` in PowerShell
 
 Mac / Linux: run `make dev`
 
-> TODO: build steps, cross-build steps
+Once it starts up, just run `make` to build the `acs-engine` binary for Linux. It will be placed at `bin/acs-engine`. This binary works great in Windows using WSL, or you can copy it to a Linux VM.
+
+> TODO: cross-build steps
 
 For more details, see the full [developers guide](https://github.com/Azure/acs-engine/blob/master/docs/developers.md)
 
-## Building Windows Kubernetes binaries
+## Hacking on Kubernetes for Windows
 
 Windows development is focused on the node (kubelet, kube-proxy), and client (kubectl). So far there hasn't been any push for running the other components (apiserver, controller-manager, scheduler, kube-dns) on Windows. Those components still run on Linux nodes. Most Windows features and bugfixes will not require any changes to the Linux components.
 
 > **Welcome contribution** - CoreDNS has builds available on Windows. It should work, but a setup guide and deployment template are needed.
 
-### Enlistment
+### Setting up a dev/build environment
+
+Kubernetes cannot be built on Windows natively, or in a Linux container. For now, the best option is to set up a VM, pull sources, and build there. I typically edit code on my Windows machine with Visual Studio Code (and the Go extension for linting), push to my branch frequently, then pull it in the VM and build. Once I'm done with my changes, I squash the branch, clean up the history, and then submit a PR.
+
+The easiest way to set up a VM is to get [Vagrant](https://vagrantup.com), then 
+
+
+> **Welcome contribution** - update Makefile to work with Docker for Windows
+>The build scripts themselves currently have blocks on OS
+>
+>```$ make -f build/root/Makefile cross
+>!!! [0917 11:44:01] Unsupported host OS.  Must be Linux or Mac OS X.
+>!!! [0917 11:44:01] Call tree:
+>!!! [0917 11:44:01]  1: hack/make-rules/cross.sh:25 source(...)
+>make: *** [build/root/Makefile:482: cross] Error 1
+
+### Kubernetes Enlistment
 
 1. Fork the Kubernetes repo in GitHub.
 
@@ -104,10 +124,7 @@ git cherry-pick ...
 ```
 
 
-### Building with Docker
-
-
-
+### Kubernetes Build
 
 For more details, check out the [Building Kubernetes](https://github.com/kubernetes/kubernetes/blob/master/build/README.md)
 

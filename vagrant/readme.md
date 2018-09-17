@@ -7,6 +7,9 @@ This was originally posted at https://github.com/Microsoft/SDN/tree/master/Kuber
 
 ## Typical usage
 
-- `vagrant up`
-- `vagrant ssh`
-- Run commands in main readme to compile k8s for linux and windows. Copy out files via SCP or other tools
+Windows
+
+
+1. [Install Hyper-V on Windows 10](https://docs.microsoft.com/en-us/virtualization/hyper-v-on-windows/quick-start/enable-hyper-v)
+2. From an elevated prompt, run `vagrant up --provider hyperv`
+3. `vagrant ssh`

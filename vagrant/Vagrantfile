@@ -1,19 +1,19 @@
 $VirtualSwitchName = "External"
 
-LINUX_IMAGE = "kmm/ubuntu-xenial64"
+LINUX_IMAGE = "bento/ubuntu-16.04"
 
 Vagrant.configure("2") do |config|
     config.vm.provider "hyperv" do |h|
         h.enable_virtualization_extensions = true
         h.differencing_disk = true
         h.cpus = 4
-        h.memory = 1024
-        h.maxmemory = 2048
-        h.vmname = "k8s-master"
-    end    
-    config.vm.define "k8s-master" do |subconfig|
+        h.memory = 4096
+        h.maxmemory = 4096
+        h.vmname = "k8s-dev"
+    end
+    config.vm.define "k8s-dev" do |subconfig|
         subconfig.vm.box = LINUX_IMAGE
-        subconfig.vm.hostname = "k8s-master"
+        subconfig.vm.hostname = "k8s-dev"
         subconfig.vm.network :public_network, bridge: $VirtualSwitchName
         config.vm.synced_folder ".", "/vagrant", disabled: true
         subconfig.vm.provision "shell", path: "ubuntu.sh"
