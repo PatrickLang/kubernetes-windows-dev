@@ -404,6 +404,7 @@ net start kubelet
 
 ## Testing Kubernetes
 
+This section is still a work in progress. Much of the work needed is already done in https://github.com/e2e-win/e2e-win-prow-deployment
 
 ### Sources for kubetest
 
@@ -411,13 +412,43 @@ net start kubelet
 
 ### Building kubetest
 
+`kubetest` is the end to end test runner for Kubernetes. It's built from the kubernetes/kubernetes repo, but a few changes are needed for it to work on Windows:
+
+- Cherry-pick https://github.com/kubernetes/kubernetes/pull/60848 
+- Windows test container repo list: https://github.com/e2e-win/e2e-win-prow-deployment/blob/master/repo-list.txt
+- Exclusions for Linux-only tests: https://github.com/e2e-win/e2e-win-prow-deployment/blob/master/exclude_conformance_test.txt
+
+```bash
+cd $GOPATH/src/kubernetes
+
+make WHAT=test/e2e/e2e.test
+```
 
 ### Running kubetest
 
 #### On an existing cluster
+
+The Kubernetes tests are also in the kubernetes/kubernetes repo. You can easily build and run them from the same VM used to build the Windows binaries.
+
+```bash
+export KUBE_MASTER=local
+export KUBE_MASTER_IP=#masterIP
+export KUBE_MASTER_URL=https://#masterIP
+export KUBECONFIG=/path/to/kubeconfig
+export KUBE_TEST_REPO_LIST=./repo_list.yaml
+
+curl https://raw.githubusercontent.com/e2e-win/e2e-win-prow-deployment/master/repo-list.txt -o repo_list.yaml
+go run hack/e2e.go -- --provider=local -v --test --test_args="--ginkgo.focus=\\[Conformance\\]\\[NodeConformance\\]"
+```
+
 > TODO running kubetest against an existing cluster
 
 #### With a new cluster on Azure
+
+
+
+> TODO cherry-picking PRs from kubernetes/test-infra
+
 > TODO using kubetest to build and test a new cluster
 
 
