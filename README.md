@@ -4,6 +4,9 @@ Guide to developing Kubernetes on Windows
 <!-- TOC -->
 
 - [How can I contribute to Kubernetes on Windows](#how-can-i-contribute-to-kubernetes-on-windows)
+    - [Features and Bugs](#features-and-bugs)
+    - [Testing](#testing)
+    - [Documentation and samples](#documentation-and-samples)
 - [Required tools](#required-tools)
 - [Building a cluster](#building-a-cluster)
     - [Example acs-engine apimodel](#example-acs-engine-apimodel)
@@ -39,7 +42,21 @@ Guide to developing Kubernetes on Windows
 
 Windows has it's own Kubernetes special interest group (SIG). The weekly meeting schedule, agenda and past recordings are all on the [SIG-Windows community page](https://github.com/kubernetes/community/tree/master/sig-windows). 
 
-Major features and bugs are tracked in [Trello](https://trello.com/b/rjTqrwjl/windows-k8s-roadmap), and updated in the weekly SIG-Windows meetings. If the items linked to the cards aren't assigned, feel free to assign them to yourself and get started hacking on them. For more up to date details, you can query for open issues & PRs with the [sig/windows label](https://github.com/kubernetes/kubernetes/labels/sig%2Fwindows) in kubernetes/kubernetes.
+
+### Features and Bugs
+
+Major features and bugs are tracked in [Windows K8s roadmap](https://trello.com/b/rjTqrwjl/windows-k8s-roadmap) trello board, and updated in the weekly SIG-Windows meetings. If the items linked to the cards aren't assigned, feel free to assign them to yourself and get started hacking on them. For more up to date details, you can query for open issues & PRs with the [sig/windows label](https://github.com/kubernetes/kubernetes/labels/sig%2Fwindows) in kubernetes/kubernetes.
+
+### Testing
+
+We're currently working on bringing daily and PR tests up using Prow, Kubetest, and the other tools in [kubernetes/test-infra](https://github.com/kubernetes/test-infra). The [Windows Kubernetes E2E Test](https://trello.com/b/QexBE5HK/windows-kubernetets-ee-testing) board on Trello has the current progress.
+
+
+### Documentation and samples
+
+There are some documentation topics listed in the [Windows K8s roadmap](https://trello.com/b/rjTqrwjl/windows-k8s-roadmap) trello board. Feel free to assign them (or contact us on Slack if you need help) and start writing. We definitely need documentation and samples for common scenarios including horizontal pod autoscaling, persistent volume claims, persistent sets, and applications using Kubernetes secrets and configmaps.
+
+> TODO: link master issue for Windows API tracking
 
 ## Required tools
 
