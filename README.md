@@ -1,14 +1,42 @@
 # kubernetes-windows-dev
 Guide to developing Kubernetes on Windows
 
+<!-- TOC -->
 
-## How to contribute
+- [How can I contribute to Kubernetes on Windows](#how-can-i-contribute-to-kubernetes-on-windows)
+- [Required tools](#required-tools)
+- [Building a cluster](#building-a-cluster)
+    - [Example acs-engine apimodel](#example-acs-engine-apimodel)
+- [Hacking ACS-Engine](#hacking-acs-engine)
+    - [ACS-Engine Enlistment](#acs-engine-enlistment)
+    - [ACS-Engine Build](#acs-engine-build)
+- [Hacking on Kubernetes for Windows](#hacking-on-kubernetes-for-windows)
+    - [Setting up a dev/build environment](#setting-up-a-devbuild-environment)
+        - [Kubernetes Enlistment for dev box](#kubernetes-enlistment-for-dev-box)
+        - [Kubernetes Enlistment for build VM](#kubernetes-enlistment-for-build-vm)
+    - [Kubernetes Build](#kubernetes-build)
+        - [Copying files from the build VM](#copying-files-from-the-build-vm)
+    - [Upgrading in-place](#upgrading-in-place)
+        - [Copying binaries using Azure Files](#copying-binaries-using-azure-files)
+        - [Connecting to a Windows node](#connecting-to-a-windows-node)
+- [Testing Kubernetes](#testing-kubernetes)
+    - [Sources for kubetest](#sources-for-kubetest)
+    - [Building kubetest](#building-kubetest)
+    - [Running kubetest](#running-kubetest)
+        - [On an existing cluster](#on-an-existing-cluster)
+        - [With a new cluster on Azure](#with-a-new-cluster-on-azure)
+- [More topics coming](#more-topics-coming)
+- [Credits](#credits)
+
+<!-- /TOC -->
+
+## How can I contribute to Kubernetes on Windows
 
 Windows has it's own Kubernetes special interest group (SIG). The weekly meeting schedule, agenda and past recordings are all on the [SIG-Windows community page](https://github.com/kubernetes/community/tree/master/sig-windows). 
 
 Major features and bugs are tracked in [Trello](https://trello.com/b/rjTqrwjl/windows-k8s-roadmap), and updated in the weekly SIG-Windows meetings. If the items linked to the cards aren't assigned, feel free to assign them to yourself and get started hacking on them. For more up to date details, you can query for open issues & PRs with the [sig/windows label](https://github.com/kubernetes/kubernetes/labels/sig%2Fwindows) in kubernetes/kubernetes.
 
-### Required tools
+## Required tools
 
 - [Git](https://git-scm.com/)
 - [Docker Community Edition](https://store.docker.com/search?type=edition&offering=community)
