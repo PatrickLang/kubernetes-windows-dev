@@ -436,6 +436,10 @@ This section is still a work in progress. Much of the work needed is already don
 
 ### Sources for kubetest
 
+`kubetest` can also be downloaded from here: https://k8swin.blob.core.windows.net/k8s-windows/testing/kubetest/kubetest_latest/kubetest .
+
+It is updated regularly and already contains the bits necessary for deploying clusters in Azure.
+
 > TODO git repo for test-infra
 
 ### Building kubetest
