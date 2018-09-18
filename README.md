@@ -330,11 +330,83 @@ The Windows binaries (typically in `c:\k`) can easily be replaced for testing or
 
 #### Copying binaries using Azure Files
 
+1. Create a storage account [full steps](https://docs.microsoft.com/en-us/azure/storage/common/storage-quickstart-create-account?toc=%2Fazure%2Fstorage%2Ffiles%2Ftoc.json&tabs=portal)
+2. Create a file share [full steps](https://docs.microsoft.com/en-us/azure/storage/files/storage-how-to-create-file-share)
+3. Mount it on [windows](https://docs.microsoft.com/en-us/azure/storage/files/storage-how-to-use-files-windows), [mac](https://docs.microsoft.com/en-us/azure/storage/files/storage-how-to-use-files-mac), or [linux](https://docs.microsoft.com/en-us/azure/storage/files/storage-how-to-use-files-linux)
+4. Copy `kubelet.exe` and `kube-proxy.exe` to it
+5. From the Azure Portal, browse to the Azure File Share, and click "Connect". It will open a new pane including a command to mount the share on Windows. Save that path for later.
+
+
+#### Connecting to a Windows node
+
+This section assumes you deployed with ACS-Engine. If you deployed another way, you'll have to find another way to connect to the Windows node.
+
+First, get the node's private IP with `kubectl get node` and `kubectl describe node`. Most likely it's in the range of `10.240.0.*`
+
+
+##### Simple method - Remote Desktop
+
+You can use SSH port forwarding with the Linux master node to forward a local port such as 5500 to the Windows node's private IP on port 3389.
+
+`ssh -L 5500:<nodeip>:3389 user@linuxmaster.region.cloudapp.azure.com`
+
+Once SSH is connected, use an RDP client to connect to `localhost:5500`. Use `mstsc.exe` on Windows, [FreeRDP](http://www.freerdp.com/) on Linux, or [Remote Desktop client](https://docs.microsoft.com/en-us/windows-server/remote/remote-desktop-services/clients/remote-desktop-mac) for Mac.
+
+When you initially connect, there will be a command prompt open (if using Server Core), otherwise you can use the start menu to open a new PowerShell window. If you're on Server Core - run `start powershell` in that window to open a new PowerShell window.
+
+Paste in that mount command the Azure Portal from step 5 above. It will be something like `net use z: \\myazurefileaccount.file.core.windows.net\myazurefiles /u:AZURE\myazurefileaccount .......`
+
+Now, stop the service, copy the files over the old ones, and restart it.
+
+```powershell
+net stop kubelet
+cd \k
+copy z:\kubelet.exe .
+copy z:\kube-proxy.exe .
+net start kubelet
+```
+
+Now, you can `kubectl uncordon` the node and run pods on it again.
+
+##### Scriptable method - WinRM
+
+SSH to the Linux master node, and run `docker run -it mcr.microsoft.com/powershell`. Once that's running, use `Get-Credential` and `Enter-PSSession <hostname> -Credential $cred -Authentication Basic -UseSSL` to connect to the Windows node.
+
+```bash
+$ docker run -it mcr.microsoft.com/powershell
+PowerShell v6.0.2
+Copyright (c) Microsoft Corporation. All rights reserved.
+
+https://aka.ms/pscore6-docs
+Type 'help' to get help.
+
+PS /> $cred = Get-Credential
+
+PowerShell credential request
+Enter your credentials.
+User: azureuser
+Password for user azureuser: ************
+
+PS /> Enter-PSSession 20143k8s9000 -Credential $cred -Authentication Basic -UseSSL
+[20143k8s9000]: PS C:\Users\azureuser\Documents>
+```
+
+Now, you can use the same steps as with Remote Desktop to copy the new files:
+
+```powershell
+net use z: \\myazurefileaccount.file.core.windows.net\myazurefiles /u:AZURE\myazurefileaccount .......
+net stop kubelet
+cd \k
+copy z:\kubelet.exe .
+copy z:\kube-proxy.exe .
+net start kubelet
+```
 
 ## Testing Kubernetes
 
 
 ### Sources for kubetest
+
 > TODO git repo for test-infra
 
 ### Building kubetest
@@ -348,6 +420,10 @@ The Windows binaries (typically in `c:\k`) can easily be replaced for testing or
 #### With a new cluster on Azure
 > TODO using kubetest to build and test a new cluster
 
+
+## More topics coming
+
+- Testing Windows Server 2019 with ContainerD. VM work started here: https://github.com/patricklang/packer-windows/tree/containerd
 
 ## Credits
 
