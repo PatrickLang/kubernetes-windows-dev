@@ -442,14 +442,25 @@ This section is still a work in progress. Much of the work needed is already don
 
 `kubetest` is the end to end test runner for Kubernetes. It's built from the kubernetes/kubernetes repo, but a few changes are needed for it to work on Windows:
 
-- Cherry-pick https://github.com/kubernetes/kubernetes/pull/60848 
+- Cherry-pick https://github.com/kubernetes/kubernetes/pull/60848
 - Windows test container repo list: https://github.com/e2e-win/e2e-win-prow-deployment/blob/master/repo-list.txt
 - Exclusions for Linux-only tests: https://github.com/e2e-win/e2e-win-prow-deployment/blob/master/exclude_conformance_test.txt
 
-```bash
-cd $GOPATH/src/kubernetes
+The cherry-pick is easy to get. Checkout your cherry-pick branch, and get this additional change:
 
-make WHAT=test/e2e/e2e.test
+```powershell
+git remote add adelina-t https://github.com/adelina-t/kubernetes
+git fetch adelina-t configure_test_image_repo
+git cherry-pick c8333a0dd4e3094cf9c6a5eda8a789e20642a3b9
+git push
+```
+
+Now, you can build the tests in the build VM
+
+```bash
+cd ~/go/src/k8s.io
+git pull
+./build/run.sh make WHAT=test/e2e/e2e.test
 ```
 
 ### Running kubetest
