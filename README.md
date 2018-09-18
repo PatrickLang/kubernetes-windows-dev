@@ -463,6 +463,9 @@ git pull
 ./build/run.sh make WHAT=test/e2e/e2e.test
 ```
 
+Once complete, the binary will be available at:
+`~/go/src/k8s.io/kubernetes/_output/dockerized/bin/linux/amd64/e2e.test`
+
 ### Running kubetest
 
 #### On an existing cluster
@@ -474,10 +477,10 @@ export KUBE_MASTER=local
 export KUBE_MASTER_IP=#masterIP
 export KUBE_MASTER_URL=https://#masterIP
 export KUBECONFIG=/path/to/kubeconfig
-export KUBE_TEST_REPO_LIST=./repo_list.yaml
+export KUBE_TEST_REPO_LIST=$(pwd)/repo_list.yaml
 
 curl https://raw.githubusercontent.com/e2e-win/e2e-win-prow-deployment/master/repo-list.txt -o repo_list.yaml
-go run hack/e2e.go -- --provider=local -v --test --test_args="--ginkgo.focus=\\[Conformance\\]\\[NodeConformance\\]"
+./e2e.test -- --provider=local -v --test --test_args="--ginkgo.focus=\\[Conformance\\]\\[NodeConformance\\]"
 ```
 
 > TODO running kubetest against an existing cluster
