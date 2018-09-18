@@ -436,6 +436,10 @@ This section is still a work in progress. Much of the work needed is already don
 
 ### Sources for kubetest
 
+`kubetest` can also be downloaded from here: https://k8swin.blob.core.windows.net/k8s-windows/testing/kubetest/kubetest_latest/kubetest .
+
+It is updated regularly and already contains the bits necessary for deploying clusters in Azure.
+
 > TODO git repo for test-infra
 
 ### Building kubetest
@@ -481,6 +485,16 @@ export KUBE_TEST_REPO_LIST=$(pwd)/repo_list.yaml
 
 curl https://raw.githubusercontent.com/e2e-win/e2e-win-prow-deployment/master/repo-list.txt -o repo_list.yaml
 ./e2e.test -- --provider=local -v --test --test_args="--ginkgo.focus=\\[Conformance\\]\\[NodeConformance\\]"
+```
+
+##### NOTE:
+
+E2E tests now require all unschedulable nodes to have a label as well as a taint. Be sure to add
+this label to every node you don't wish to run tests on (usually the master node in windows scenarios) otherwise tests won't start.
+
+```
+kubectl taint nodes $master_node_name key=value:NoSchedule
+kubectl label nodes $master_node_name node-role.kubernetes.io/master=NoSchedule
 ```
 
 > TODO running kubetest against an existing cluster
