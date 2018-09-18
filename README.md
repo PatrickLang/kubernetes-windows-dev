@@ -24,6 +24,88 @@ If you're using Windows, use "Git Bash" as your command-line environment for bui
 
 [Kubernetes on Windows](https://docs.microsoft.com/en-us/virtualization/windowscontainers/kubernetes/getting-started-kubernetes-windows) - with host gateway routing. If you want full control over the whole process or don't want to take a dependency on a cloud provider and want to use the WinCNI reference plugin that's similar to kubenet, use this guide.
 
+### Example acs-engine apimodel
+
+This apimodel.json is a great starting point. It includes two optional settings:
+
+- Enable winrm for remote management
+- Enable the alpha Hyper-V container support
+
+```json
+{
+  "apiVersion": "vlabs",
+  "properties": {
+    "orchestratorProfile": {
+      "orchestratorType": "Kubernetes",
+      "orchestratorVersion": "1.12",
+      "kubernetesConfig": {
+               "apiServerConfig" : {
+                 "--feature-gates": "HyperVContainer=true"
+               },
+               "kubeletConfig" : {
+                    "--feature-gates": "HyperVContainer=true"
+                }
+          }
+    },
+    "masterProfile": {
+      "count": 1,
+      "dnsPrefix": "azwink8s",
+      "vmSize": "Standard_D2_v3"
+    },
+    "agentPoolProfiles": [
+	    {
+		"name": "windowspool",
+		"count": 2,
+		"vmSize": "Standard_D2_v3",
+		"availabilityProfile": "AvailabilitySet",
+		"osType": "Windows",
+		"osDiskSizeGB": 127,
+		"extensions": [
+		    {
+                        "name": "winrm"
+		    }
+		]
+	    },
+	    {
+		"name": "linuxpool",
+		"count": 2,
+		"vmSize": "Standard_D2_v2",
+		"availabilityProfile": "AvailabilitySet",
+		"osType": "Linux"
+	    }
+    ],
+    "windowsProfile": {
+	    "adminUsername": "adminuser",
+	    "adminPassword": "",
+	    "windowsPublisher": "MicrosoftWindowsServer",
+	    "windowsOffer": "WindowsServerSemiAnnual",
+	    "windowsSku": "Datacenter-Core-1803-with-Containers-smalldisk"
+     },
+    "extensionProfiles": [
+      {
+        "name": "winrm",
+        "version": "v1"
+      }
+    ],
+    "linuxProfile": {
+      "adminUsername": "adminuser",
+      "ssh": {
+        "publicKeys": [
+          {
+            "keyData": ""
+          }
+        ]
+      }
+    },
+    "servicePrincipalProfile": {
+      "clientId": "",
+      "secret": ""
+    }
+  }
+}
+```
+
+
 ## Hacking ACS-Engine
 
 ACS-Engine work items for Windows are tracked in a GitHub [project](https://github.com/Azure/acs-engine/projects/3). Feel free to grab one if there's a feature or bug you need to work on.
@@ -33,14 +115,14 @@ ACS-Engine work items for Windows are tracked in a GitHub [project](https://gith
 
 1. Fork the [acs-engine](https://github.com/Azure/acs-engine) repo in GitHub.
 
-2. Clone your fork of the Kubernetes repo
+2. Clone your fork of the ACS-Engine repo
 
 ```bash
 # clone your fork as origin
 git clone https://github.com/<your_github_username>/acs-engine.git
 ```
 
-3. Set upstream to the main Kubernetes repo.
+3. Set upstream to the main ACS-Engine repo.
 
 ```bash
 cd acs-engine
@@ -97,14 +179,14 @@ The easiest way to set up a VM is to get [Vagrant](https://vagrantup.com), then 
 Since you need to build on a Linux machine, I have found that it's easiest to push all changes to a private branch, pull that in the build VM, then build.
 
 I use a 3-deep branching strategy:
+
 1. Fetch an upstream branch such as master or release-1.12
 2. Branch off that to aggregate open PRs
 3. Use a 3rd branch for my current changes
 
 As PRs are merged, I rebase all three in order. #1 will never have conflicts. If #2 has a conflict, the open PR will also have a conflict, so wait for it to be fixed there and do a new cherry-pick. #3 - I fix conflicts, squash and update my open PR if needed.
 
-
-Steps to create the branches
+Steps to create the branches:
 
 1. Fork the Kubernetes repo in GitHub.
 
@@ -135,14 +217,14 @@ git checkout release-1.12
 git push -u origin release-1.12
 ```
 
-4. (optional) Make a cherry-pick branch
+5. (optional) Make a cherry-pick branch
 
 ```bash
 git checkout -b 1.12-cherrypick
 git push --set-upstream origin 1.12-cherrypick
 ```
 
-5. (optional) Cherry-pick a PR that hasn't been merged.
+6. (optional) Cherry-pick a PR that hasn't been merged.
 
 This example uses https://github.com/kubernetes/kubernetes/pull/67435. You need two pieces of information from the PR:
 
@@ -159,7 +241,7 @@ git cherry-pick 3cb62394911261e3d8025d191a3ca80e6a712a67
 git push
 ```
 
-6. Create a branch for your PR
+7. Create a branch for your PR
 
 ```bash
 git checkout -b mybugfix
@@ -228,18 +310,43 @@ For more details on building, check out the [Building Kubernetes](https://github
 
 #### Copying files from the build VM
 
-Now, it's time to use SCP to copy the binaries out. 
+Now, it's time to use SCP to copy the binaries out.
 
 1. Get the SSH config with `vagrant ssh-config | Out-File -Encoding ascii k8s-dev.ssh.config`
 2. Copy the files out with SCP `scp -F .\k8s-dev.ssh.config k8s-dev:~/go/src/k8s.io/kubernetes/_output/dockerized/bin/windows/amd64/* .`
 
 ### Upgrading in-place
 
+The Windows binaries (typically in `c:\k`) can easily be replaced for testing or upgrades. The general process is:
+
+1. Copy the new binaries to an easily accessible location - Azure Files or Google Cloud Storage work great.
+2. `kubectl drain <node>`
+3. Connect to the Windows node using PowerShell remoting or Remote Desktop
+4. Run `net stop kubelet` on the Windows node
+5. Replace `kubelet.exe` and `kube-proxy.exe`
+6. Run `net start kubelet` on the Windows node
+7. `kubectl uncordon <node>`
 
 
+#### Copying binaries using Azure Files
 
-## Testing
 
+## Testing Kubernetes
+
+
+### Sources for kubetest
+> TODO git repo for test-infra
+
+### Building kubetest
+
+
+### Running kubetest
+
+#### On an existing cluster
+> TODO running kubetest against an existing cluster
+
+#### With a new cluster on Azure
+> TODO using kubetest to build and test a new cluster
 
 
 ## Credits
