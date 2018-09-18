@@ -7,6 +7,10 @@ Guide to developing Kubernetes on Windows
 - [Required tools](#required-tools)
 - [Building a cluster](#building-a-cluster)
     - [Example acs-engine apimodel](#example-acs-engine-apimodel)
+- [Creating Windows pod deployments](#creating-windows-pod-deployments)
+- [Connecting to a Windows node](#connecting-to-a-windows-node)
+    - [Simple method - Remote Desktop](#simple-method---remote-desktop)
+    - [Scriptable method - PowerShell Remoting](#scriptable-method---powershell-remoting)
 - [Hacking ACS-Engine](#hacking-acs-engine)
     - [ACS-Engine Enlistment](#acs-engine-enlistment)
     - [ACS-Engine Build](#acs-engine-build)
@@ -16,9 +20,9 @@ Guide to developing Kubernetes on Windows
         - [Kubernetes Enlistment for build VM](#kubernetes-enlistment-for-build-vm)
     - [Kubernetes Build](#kubernetes-build)
         - [Copying files from the build VM](#copying-files-from-the-build-vm)
-    - [Upgrading in-place](#upgrading-in-place)
+    - [Installing your build](#installing-your-build)
         - [Copying binaries using Azure Files](#copying-binaries-using-azure-files)
-        - [Connecting to a Windows node](#connecting-to-a-windows-node)
+        - [Replacing files on the node](#replacing-files-on-the-node)
 - [Testing Kubernetes](#testing-kubernetes)
     - [Sources for kubetest](#sources-for-kubetest)
     - [Building kubetest](#building-kubetest)
@@ -133,6 +137,51 @@ This apimodel.json is a great starting point. It includes two optional settings:
 }
 ```
 
+
+## Creating Windows pod deployments
+
+> TODO
+
+## Connecting to a Windows node
+
+This section assumes you deployed with ACS-Engine. If you deployed another way, some changes may be needed to access the Windows node. 
+
+### Simple method - Remote Desktop
+
+First, get the node's private IP with `kubectl get node` and `kubectl describe node`. Most likely it's in the range of `10.240.0.*`
+
+You can use SSH port forwarding with the Linux master node to forward a local port such as 5500 to the Windows node's private IP on port 3389.
+
+`ssh -L 5500:<nodeip>:3389 user@linuxmaster.region.cloudapp.azure.com`
+
+Once SSH is connected, use an RDP client to connect to `localhost:5500`. Use `mstsc.exe` on Windows, [FreeRDP](http://www.freerdp.com/) on Linux, or [Remote Desktop client](https://docs.microsoft.com/en-us/windows-server/remote/remote-desktop-services/clients/remote-desktop-mac) for Mac.
+
+When you initially connect, there will be a command prompt open (if using Server Core), otherwise you can use the start menu to open a new PowerShell window. If you're on Server Core - run `start powershell` in that window to open a new PowerShell window.
+
+### Scriptable method - PowerShell Remoting
+
+First, get the node's private IP with `kubectl get node` and `kubectl describe node`. Most likely it's in the range of `10.240.0.*`
+
+Next, SSH to the Linux master node, and run `docker run -it mcr.microsoft.com/powershell`. Once that's running, use `Get-Credential` and `Enter-PSSession <hostname> -Credential $cred -Authentication Basic -UseSSL` to connect to the Windows node.
+
+```bash
+$ docker run -it mcr.microsoft.com/powershell
+PowerShell v6.0.2
+Copyright (c) Microsoft Corporation. All rights reserved.
+
+https://aka.ms/pscore6-docs
+Type 'help' to get help.
+
+PS /> $cred = Get-Credential
+
+PowerShell credential request
+Enter your credentials.
+User: azureuser
+Password for user azureuser: ************
+
+PS /> Enter-PSSession 20143k8s9000 -Credential $cred -Authentication Basic -UseSSL
+[20143k8s9000]: PS C:\Users\azureuser\Documents>
+```
 
 ## Hacking ACS-Engine
 
@@ -343,9 +392,9 @@ Now, it's time to use SCP to copy the binaries out.
 1. Get the SSH config with `vagrant ssh-config | Out-File -Encoding ascii k8s-dev.ssh.config`
 2. Copy the files out with SCP `scp -F .\k8s-dev.ssh.config k8s-dev:~/go/src/k8s.io/kubernetes/_output/dockerized/bin/windows/amd64/* .`
 
-### Upgrading in-place
+### Installing your build
 
-The Windows binaries (typically in `c:\k`) can easily be replaced for testing or upgrades. The general process is:
+The Windows node binaries (typically in `c:\k`) can easily be replaced for testing or upgrades. The general process is:
 
 1. Copy the new binaries to an easily accessible location - Azure Files or Google Cloud Storage work great.
 2. `kubectl drain <node>`
@@ -365,26 +414,13 @@ The Windows binaries (typically in `c:\k`) can easily be replaced for testing or
 5. From the Azure Portal, browse to the Azure File Share, and click "Connect". It will open a new pane including a command to mount the share on Windows. Save that path for later.
 
 
-#### Connecting to a Windows node
+#### Replacing files on the node
 
-This section assumes you deployed with ACS-Engine. If you deployed another way, you'll have to find another way to connect to the Windows node.
+First, connect with Remote Desktop or PowerShell remoting - see [Connecting to a Windows node](#connecting-to-a-windows-node)
 
-First, get the node's private IP with `kubectl get node` and `kubectl describe node`. Most likely it's in the range of `10.240.0.*`
+Find or open a new PowerShell window, and then paste in that mount command the Azure Portal from step 5 above. It will be something like `net use z: \\myazurefileaccount.file.core.windows.net\myazurefiles /u:AZURE\myazurefileaccount .......`
 
-
-##### Simple method - Remote Desktop
-
-You can use SSH port forwarding with the Linux master node to forward a local port such as 5500 to the Windows node's private IP on port 3389.
-
-`ssh -L 5500:<nodeip>:3389 user@linuxmaster.region.cloudapp.azure.com`
-
-Once SSH is connected, use an RDP client to connect to `localhost:5500`. Use `mstsc.exe` on Windows, [FreeRDP](http://www.freerdp.com/) on Linux, or [Remote Desktop client](https://docs.microsoft.com/en-us/windows-server/remote/remote-desktop-services/clients/remote-desktop-mac) for Mac.
-
-When you initially connect, there will be a command prompt open (if using Server Core), otherwise you can use the start menu to open a new PowerShell window. If you're on Server Core - run `start powershell` in that window to open a new PowerShell window.
-
-Paste in that mount command the Azure Portal from step 5 above. It will be something like `net use z: \\myazurefileaccount.file.core.windows.net\myazurefiles /u:AZURE\myazurefileaccount .......`
-
-Now, stop the service, copy the files over the old ones, and restart it.
+Now, stop the `kubelet` service, copy the files over the old ones, and restart it.
 
 ```powershell
 net stop kubelet
@@ -395,40 +431,6 @@ net start kubelet
 ```
 
 Now, you can `kubectl uncordon` the node and run pods on it again.
-
-##### Scriptable method - WinRM
-
-SSH to the Linux master node, and run `docker run -it mcr.microsoft.com/powershell`. Once that's running, use `Get-Credential` and `Enter-PSSession <hostname> -Credential $cred -Authentication Basic -UseSSL` to connect to the Windows node.
-
-```bash
-$ docker run -it mcr.microsoft.com/powershell
-PowerShell v6.0.2
-Copyright (c) Microsoft Corporation. All rights reserved.
-
-https://aka.ms/pscore6-docs
-Type 'help' to get help.
-
-PS /> $cred = Get-Credential
-
-PowerShell credential request
-Enter your credentials.
-User: azureuser
-Password for user azureuser: ************
-
-PS /> Enter-PSSession 20143k8s9000 -Credential $cred -Authentication Basic -UseSSL
-[20143k8s9000]: PS C:\Users\azureuser\Documents>
-```
-
-Now, you can use the same steps as with Remote Desktop to copy the new files:
-
-```powershell
-net use z: \\myazurefileaccount.file.core.windows.net\myazurefiles /u:AZURE\myazurefileaccount .......
-net stop kubelet
-cd \k
-copy z:\kubelet.exe .
-copy z:\kube-proxy.exe .
-net start kubelet
-```
 
 ## Testing Kubernetes
 
