@@ -480,6 +480,16 @@ curl https://raw.githubusercontent.com/e2e-win/e2e-win-prow-deployment/master/re
 go run hack/e2e.go -- --provider=local -v --test --test_args="--ginkgo.focus=\\[Conformance\\]\\[NodeConformance\\]"
 ```
 
+##### NOTE:
+
+E2E tests now require all unschedulable nodes to have a label as well as a taint. Be sure to add
+this label to every node you don't wish to run tests on (usually the master node in windows scenarios) otherwise tests won't start.
+
+```
+kubectl taint nodes $master_node_name key=value:NoSchedule
+kubectl label nodes $master_node_name node-role.kubernetes.io/master=NoSchedule
+```
+
 > TODO running kubetest against an existing cluster
 
 #### With a new cluster on Azure
