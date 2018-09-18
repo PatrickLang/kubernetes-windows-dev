@@ -11,6 +11,7 @@ Guide to developing Kubernetes on Windows
 - [Connecting to a Windows node](#connecting-to-a-windows-node)
     - [Simple method - Remote Desktop](#simple-method---remote-desktop)
     - [Scriptable method - PowerShell Remoting](#scriptable-method---powershell-remoting)
+- [Collecting Logs](#collecting-logs)
 - [Hacking ACS-Engine](#hacking-acs-engine)
     - [ACS-Engine Enlistment](#acs-engine-enlistment)
     - [ACS-Engine Build](#acs-engine-build)
@@ -140,7 +141,51 @@ This apimodel.json is a great starting point. It includes two optional settings:
 
 ## Creating Windows pod deployments
 
-> TODO
+Once you have a cluster up, go ahead and run your first deployment. This assumes you have a Windows Server version 1803 node deployed. If you're using a different version, update the image with another tag for [microsoft/iis](https://hub.docker.com/r/microsoft/iis/) as needed.
+
+```json
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: iis-1803
+  labels:
+    app: iis-1803
+spec:
+  replicas: 1
+  template:
+    metadata:
+      name: iis-1803
+      labels:
+        app: iis-1803
+    spec:
+      containers:
+      - name: iis
+        image: microsoft/iis:windowsservercore-1803
+        ports:
+          - containerPort: 80
+      nodeSelector:
+        "beta.kubernetes.io/os": windows
+  selector:
+    matchLabels:
+      app: iis-1803
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: iis
+spec:
+  type: LoadBalancer
+  ports:
+  - protocol: TCP
+    port: 80
+  selector:
+    app: iis-1803
+```
+
+Here are some repos with more samples:
+
+- [patricklang/Windows-K8s-Samples](https://github.com/PatrickLang/Windows-K8s-Samples)
+
 
 ## Connecting to a Windows node
 
@@ -182,6 +227,10 @@ Password for user azureuser: ************
 PS /> Enter-PSSession 20143k8s9000 -Credential $cred -Authentication Basic -UseSSL
 [20143k8s9000]: PS C:\Users\azureuser\Documents>
 ```
+
+## Collecting Logs
+
+There's a handy script that you can use to collect kubelet, kube-proxy, Docker and Windows HCS and HNS logs from every node all at once - [logslurp](https://github.com/patricklang/logslurp)
 
 ## Hacking ACS-Engine
 
