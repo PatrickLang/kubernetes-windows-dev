@@ -565,7 +565,10 @@ kubectl taint nodes $master_node_name key=value:NoSchedule
 kubectl label nodes $master_node_name node-role.kubernetes.io/master=NoSchedule
 ```
 
-> TODO running kubetest against an existing cluster
+
+
+For more on this topic, check out the official [e2e-tests](https://github.com/kubernetes/community/blob/master/contributors/devel/e2e-tests.md#testing-against-local-clusters) doc.
+
 
 #### With a new cluster on Azure
 
