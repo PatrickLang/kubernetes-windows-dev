@@ -14,6 +14,7 @@ Guide to developing Kubernetes on Windows
 - [Connecting to a Windows node](#connecting-to-a-windows-node)
     - [Simple method - Remote Desktop](#simple-method---remote-desktop)
     - [Scriptable method - PowerShell Remoting](#scriptable-method---powershell-remoting)
+        - [If WinRM isn't enabled](#if-winrm-isnt-enabled)
 - [Collecting Logs](#collecting-logs)
 - [Hacking ACS-Engine](#hacking-acs-engine)
     - [ACS-Engine Enlistment](#acs-engine-enlistment)
@@ -248,6 +249,14 @@ Password for user azureuser: ************
 PS /> Enter-PSSession 20143k8s9000 -Credential $cred -Authentication Basic -UseSSL
 [20143k8s9000]: PS C:\Users\azureuser\Documents>
 ```
+
+#### If WinRM isn't enabled
+
+If WinRM wasn't enabled when you did the deployment with ACS-Engine, you can still enable it through the Azure portal.
+
+1. Browse to the VM in the Azure portal
+2. In the left pane, browse to Operations -> Run Command
+3. Click "EnableRemotePS", then click Run.
 
 ## Collecting Logs
 
