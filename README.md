@@ -33,7 +33,9 @@ Guide to developing Kubernetes on Windows
     - [Running kubetest](#running-kubetest)
         - [On an existing cluster](#on-an-existing-cluster)
         - [With a new cluster on Azure](#with-a-new-cluster-on-azure)
-- [More topics coming](#more-topics-coming)
+- [Building Other Components](#building-other-components)
+    - [Azure-CNI](#azure-cni)
+    - [ContainerD](#containerd)
 - [Credits](#credits)
 
 <!-- /TOC -->
@@ -579,9 +581,19 @@ For more on this topic, check out the official [e2e-tests](https://github.com/ku
 > TODO using kubetest to build and test a new cluster
 
 
-## More topics coming
+## Building Other Components
 
-- Testing Windows Server 2019 with ContainerD. VM work started here: https://github.com/patricklang/packer-windows/tree/containerd
+### Azure-CNI
+
+The same dev VM has everything you need to build the Azure CNI repo. Clone it inside the dev VM, then run
+
+```bash
+./build/build-all-containerized.sh windows amd64
+```
+
+### ContainerD
+
+>TODO - Testing Windows Server 2019 with ContainerD. VM work started here: https://github.com/patricklang/packer-windows/tree/containerd
 
 ## Credits
 
