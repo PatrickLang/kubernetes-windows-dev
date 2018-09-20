@@ -36,6 +36,8 @@ Guide to developing Kubernetes on Windows
 - [Building Other Components](#building-other-components)
     - [Azure-CNI](#azure-cni)
     - [ContainerD](#containerd)
+- [Quick tips on Windows administration](#quick-tips-on-windows-administration)
+    - [If you did this in bash, do this in PowerShell](#if-you-did-this-in-bash-do-this-in-powershell)
 - [Credits](#credits)
 
 <!-- /TOC -->
@@ -585,6 +587,8 @@ For more on this topic, check out the official [e2e-tests](https://github.com/ku
 
 ### Azure-CNI
 
+Azure-CNI source is at [Azure/azure-container-networking](https://github.com/Azure/azure-container-networking/)
+
 The same dev VM has everything you need to build the Azure CNI repo. Clone it inside the dev VM, then run
 
 ```bash
@@ -594,6 +598,17 @@ The same dev VM has everything you need to build the Azure CNI repo. Clone it in
 ### ContainerD
 
 >TODO - Testing Windows Server 2019 with ContainerD. VM work started here: https://github.com/patricklang/packer-windows/tree/containerd
+
+
+## Quick tips on Windows administration
+
+### If you did this in bash, do this in PowerShell
+
+bash | PowerShell
+-----|-----------
+`tail ...` | `Get-Content -Last 40 -Wait ...`
+`ls | xargs -n1 ...` | `ls | %{ ... $_ }`
+
 
 ## Credits
 
