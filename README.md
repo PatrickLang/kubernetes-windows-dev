@@ -539,7 +539,7 @@ The cherry-pick is easy to get. Checkout your cherry-pick branch, and get this a
 ```powershell
 git remote add adelina-t https://github.com/adelina-t/kubernetes
 git fetch adelina-t configure_test_image_repo
-git cherry-pick c8333a0dd4e3094cf9c6a5eda8a789e20642a3b9
+git cherry-pick bb59d44deb11a87ca2c0dc88f955e06673192aa0
 git push
 ```
 
