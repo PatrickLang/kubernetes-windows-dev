@@ -68,6 +68,7 @@ There are some documentation topics listed in the [Windows K8s roadmap](https://
 - [Git](https://git-scm.com/)
 - [Docker Community Edition](https://store.docker.com/search?type=edition&offering=community)
 - (optional but awesome) [Visual Studio Code](https://code.visualstudio.com/)
+- (for Windows 10 version 1709 or older) [Putty and Pageant](https://github.com/Azure/acs-engine/blob/master/docs/ssh.md#key-management-and-agent-forwarding-with-windows-pageant) for SSH
 
 If you're using Windows, use "Git Bash" as your command-line environment for building. It can run the same bash scripts as on Linux & Mac, and will run the build containers using Docker for Windows.
 
@@ -220,6 +221,8 @@ First, get the node's private IP with `kubectl get node` and `kubectl describe n
 You can use SSH port forwarding with the Linux master node to forward a local port such as 5500 to the Windows node's private IP on port 3389.
 
 `ssh -L 5500:<nodeip>:3389 user@linuxmaster.region.cloudapp.azure.com`
+
+> If you're on Windows 10 version 1709 or older, here's how to [use Putty & Pageant](https://github.com/Azure/acs-engine/blob/master/docs/ssh.md#key-management-and-agent-forwarding-with-windows-pageant) instead
 
 Once SSH is connected, use an RDP client to connect to `localhost:5500`. Use `mstsc.exe` on Windows, [FreeRDP](http://www.freerdp.com/) on Linux, or [Remote Desktop client](https://docs.microsoft.com/en-us/windows-server/remote/remote-desktop-services/clients/remote-desktop-mac) for Mac.
 
