@@ -321,10 +321,13 @@ Windows development is focused on the node (kubelet, kube-proxy), and client (ku
 
 Kubernetes cannot be built on Windows natively, or in a Linux container. For now, the best option is to set up a VM, pull sources, and build there. I typically edit code on my Windows machine with Visual Studio Code (and the Go extension for linting), push to my branch frequently, then pull it in the VM and build. Once I'm done with my changes, I squash the branch, clean up the history, and then submit a PR.
 
-The easiest way to set up a VM is to get [Vagrant](https://vagrantup.com), then follow the steps in [vagrant/readme.md](vagrant/readme.md) to start it up.
+
+1. Install [Vagrant](https://vagrantup.com)
+2. Copy the Vagrant folder from this repo to a drive with 60GB free
+3. `cd` to that folder, then follow the steps in [vagrant/readme.md](vagrant/readme.md) to start it up.
 
 
-> **Welcome contribution** - update Makefile to work with Docker for Windows
+> **Welcome contribution** - update the Kubernetes Makefile to work with Docker for Windows
 >The build scripts themselves currently have blocks on OS
 >
 >```$ make -f build/root/Makefile cross
