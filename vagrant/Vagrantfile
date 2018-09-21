@@ -1,4 +1,4 @@
-$VirtualSwitchName = "External"
+$VirtualSwitchName = "Default Switch"
 
 LINUX_IMAGE = "bento/ubuntu-16.04"
 
@@ -7,8 +7,8 @@ Vagrant.configure("2") do |config|
         h.enable_virtualization_extensions = true
         h.linked_clone = true
         h.cpus = 4
-        h.memory = 4096
-        h.maxmemory = 4096
+        h.memory = 6144
+        h.maxmemory = 6144
         h.vmname = "k8s-dev"
     end
     config.vm.define "k8s-dev" do |subconfig|
