@@ -534,9 +534,13 @@ It is updated regularly and already contains the bits necessary for deploying cl
 
 ### Building kubetest
 
-`kubetest` is the end to end test runner for Kubernetes. It's built from the kubernetes/kubernetes repo, but a few changes are needed for it to work on Windows:
+`kubetest` is the end to end test runner for Kubernetes. It's built from the kubernetes/kubernetes repo, but a few changes are needed for it to work on Windows. For the latest, check out the "waiting on merge" column in the [Windows Kubernetes E2E testing board](https://trello.com/b/QexBE5HK/windows-kubernetets-ee-testing)
 
-- Cherry-pick https://github.com/kubernetes/kubernetes/pull/60848
+- Cherry-picks needed
+  - https://github.com/kubernetes/kubernetes/pull/69571
+  - https://github.com/kubernetes/kubernetes/pull/69525
+  - https://github.com/kubernetes/kubernetes/pull/63600
+  - https://github.com/kubernetes/kubernetes/pull/69872
 - Windows test container repo list: https://github.com/e2e-win/e2e-win-prow-deployment/blob/master/repo-list.txt
 - Exclusions for Linux-only tests: https://github.com/e2e-win/e2e-win-prow-deployment/blob/master/exclude_conformance_test.txt
 
@@ -544,8 +548,15 @@ The cherry-pick is easy to get. Checkout your cherry-pick branch, and get this a
 
 ```powershell
 git remote add adelina-t https://github.com/adelina-t/kubernetes
-git fetch adelina-t configure_test_image_repo
-git cherry-pick bb59d44deb11a87ca2c0dc88f955e06673192aa0
+git remote add bclau https://github.com/bclau/kubernetes
+git fetch bclau tests-linux-commands-fix
+git cherry-pick 7cd4ebf3c3e7778efeb819c98e35846bd064fd6a
+git fetch bclau tests-hostnetwork
+git cherry-pick f02b6e282fe90a8701cb9c52ef7c163ead083001
+git fetch bclau remove-hardcoded-yaml-images
+git cherry-pick 5a561e8817bed0c45edff4ec6f3d13cb2babf943
+git fetch bclau skip-windows-unrelated-tests
+git cherry-pick ac66ef9c293f79eac2fb62f20027387bc4a5d93f
 git push
 ```
 
@@ -577,12 +588,12 @@ curl https://raw.githubusercontent.com/e2e-win/e2e-win-prow-deployment/master/re
 ./e2e.test -- --provider=local -v --test --test_args="--ginkgo.focus=\\[Conformance\\]\\[NodeConformance\\]"
 ```
 
-##### NOTE:
+##### NOTE
 
 E2E tests now require all unschedulable nodes to have a label as well as a taint. Be sure to add
 this label to every node you don't wish to run tests on (usually the master node in windows scenarios) otherwise tests won't start.
 
-```
+```bash
 kubectl taint nodes $master_node_name key=value:NoSchedule
 kubectl label nodes $master_node_name node-role.kubernetes.io/master=NoSchedule
 ```
