@@ -52,6 +52,8 @@ Windows has it's own Kubernetes special interest group (SIG). The weekly meeting
 
 Major features and bugs are tracked in [Windows K8s roadmap](https://trello.com/b/rjTqrwjl/windows-k8s-roadmap) trello board, and updated in the weekly SIG-Windows meetings. If the items linked to the cards aren't assigned, feel free to assign them to yourself and get started hacking on them. For more up to date details, you can query for open issues & PRs with the [sig/windows label](https://github.com/kubernetes/kubernetes/labels/sig%2Fwindows) in kubernetes/kubernetes.
 
+For v1.13, the sole focus is on getting Kubernetes stable and fixing outstanding conformance bugs. This [GitHub project board](https://github.com/PatrickLang/k8s-project-management/projects/1) tracks the work in these areas.
+
 ### Testing
 
 We're currently working on bringing daily and PR tests up using Prow, Kubetest, and the other tools in [kubernetes/test-infra](https://github.com/kubernetes/test-infra). The [Windows Kubernetes E2E Test](https://trello.com/b/QexBE5HK/windows-kubernetets-ee-testing) board on Trello has the current progress.
