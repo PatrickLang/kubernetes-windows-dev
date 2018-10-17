@@ -48,11 +48,12 @@ Guide to developing Kubernetes on Windows
 Windows has it's own Kubernetes special interest group (SIG). The weekly meeting schedule, agenda and past recordings are all on the [SIG-Windows community page](https://github.com/kubernetes/community/tree/master/sig-windows). 
 
 
+For v1.13, the sole focus is on getting Kubernetes stable and fixing outstanding conformance bugs. This [GitHub project board](https://github.com/PatrickLang/k8s-project-management/projects/1) tracks the work in these areas.
+
 ### Features and Bugs
 
 Major features and bugs are tracked in [Windows K8s roadmap](https://trello.com/b/rjTqrwjl/windows-k8s-roadmap) trello board, and updated in the weekly SIG-Windows meetings. If the items linked to the cards aren't assigned, feel free to assign them to yourself and get started hacking on them. For more up to date details, you can query for open issues & PRs with the [sig/windows label](https://github.com/kubernetes/kubernetes/labels/sig%2Fwindows) in kubernetes/kubernetes.
 
-For v1.13, the sole focus is on getting Kubernetes stable and fixing outstanding conformance bugs. This [GitHub project board](https://github.com/PatrickLang/k8s-project-management/projects/1) tracks the work in these areas.
 
 ### Testing
 
