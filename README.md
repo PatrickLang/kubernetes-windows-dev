@@ -579,13 +579,13 @@ The Kubernetes tests are also in the kubernetes/kubernetes repo. You can easily 
 
 ```bash
 export KUBE_MASTER=local
-export KUBE_MASTER_IP=#masterIP
-export KUBE_MASTER_URL=https://#masterIP
+#export KUBE_MASTER_IP=#masterIP # may not actually be needed if KUBECONFIG set
+#export KUBE_MASTER_URL=https://#masterIP # may not actually be needed if KUBECONFIG set
 export KUBECONFIG=/path/to/kubeconfig
 export KUBE_TEST_REPO_LIST=$(pwd)/repo_list.yaml
 
 curl https://raw.githubusercontent.com/e2e-win/e2e-win-prow-deployment/master/repo-list.txt -o repo_list.yaml
-./e2e.test -- --provider=local -v --test --test_args="--ginkgo.focus=\\[Conformance\\]\\[NodeConformance\\]"
+./e2e.test -- --provider=local -v --test --test_args="--ginkgo.focus=\\[Conformance\\]\\[NodeConformance\\] --node-os-distro=windows"
 ```
 
 ##### NOTE
