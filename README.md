@@ -585,7 +585,8 @@ export KUBECONFIG=/path/to/kubeconfig
 export KUBE_TEST_REPO_LIST=$(pwd)/repo_list.yaml
 
 curl https://raw.githubusercontent.com/e2e-win/e2e-win-prow-deployment/master/repo-list.txt -o repo_list.yaml
-./e2e.test -- --provider=local -v --test --test_args="--ginkgo.focus=\\[Conformance\\]\\[NodeConformance\\]" --node-os-distro=windows
+# run tests in background, and capture output to text files
+nohup ./e2e.test --provider=local --ginkgo.noColor --ginkgo.focus=.*NodeConformance.*Conformance.* > test-all.out 2> test-all.err < /dev/null & 
 ```
 
 ##### NOTE
