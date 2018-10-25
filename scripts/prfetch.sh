@@ -31,6 +31,8 @@ if [ -d .git ]; then
     git reset HEAD -- .
     git checkout -- .
     git clean -df
+    git checkout master
+    git pull
     git checkout ${AGGREGATION_BRANCH}
     git reset --hard master
     git reset HEAD -- .
@@ -44,7 +46,7 @@ fi
 for pull in ${PRS[@]}; do
     echo "Cherry-picking https://github.com/${MAIN_REPO_ORG}/${MAIN_REPO_NAME}/pull/${pull}.patch"
     curl -o "$dir/${pull}.patch" -sSL "https://github.com/${MAIN_REPO_ORG}/${MAIN_REPO_NAME}/pull/${pull}.patch"
-    git apply -3 "$dir/${pull}.patch" || { 
+    git am -3 "$dir/${pull}.patch" || { 
         echo "Failed to merge. Stopping now"
         exit 1
     }
