@@ -16,8 +16,6 @@ export PRS=$(cat <<-END
 a17a561a9e00c126a3cdb347e1ce415b536045d5
 #69516
 #69525
-#69568
-#69571
 END
 )
 
@@ -59,10 +57,11 @@ for item in ${PRS[@]}; do
         }
     else
         echo "Pulling existing change $item"
+        git merge $item
     fi
 done
 
-echo Once fixups done, run git push --force-with-lease
-
 rm -rf "${dir}"
+
+echo Success! Now run git push --force-with-lease
 exit 0
