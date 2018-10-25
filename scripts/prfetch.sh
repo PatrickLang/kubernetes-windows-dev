@@ -6,15 +6,18 @@ set -u -x -e
 
 dir=$(mktemp -d)
 
+# substitutes
+# #67884 - a17a561a9e00c126a3cdb347e1ce415b536045d5
+
 export PRS=$(cat <<-END
-61778
-63600
-67435
-67884
-69516
-69525
-69568
-69571
+#61778
+#63600
+#67435
+a17a561a9e00c126a3cdb347e1ce415b536045d5
+#69516
+#69525
+#69568
+#69571
 END
 )
 
@@ -27,7 +30,8 @@ export AGGREGATION_BRANCH=windows-v1.13-dev
 echo Will fetch PRs: ${PRS}
 
 if [ -d .git ]; then
-    echo "Repo already exists, skipping creation"
+    echo "Repo already exists. Discarding local changes, and syncing from origin/master"
+    git am --abort || git rebase --abort || true
     git reset HEAD -- .
     git checkout -- .
     git clean -df
@@ -37,19 +41,25 @@ if [ -d .git ]; then
     git reset --hard master
     git reset HEAD -- .
 else
-    git clone https://github.com/${AGGREGATION_REPO_ORG}/${AGGREGATION_REPO_NAME}.git .
+    git clone git@github.com:${AGGREGATION_REPO_ORG}/${AGGREGATION_REPO_NAME}.git
     git remote add upstream https://github.com/${MAIN_REPO_ORG}/${MAIN_REPO_NAME}.git
     git fetch upstream
     git checkout ${AGGREGATION_BRANCH}
 fi
 
-for pull in ${PRS[@]}; do
-    echo "Cherry-picking https://github.com/${MAIN_REPO_ORG}/${MAIN_REPO_NAME}/pull/${pull}.patch"
-    curl -o "$dir/${pull}.patch" -sSL "https://github.com/${MAIN_REPO_ORG}/${MAIN_REPO_NAME}/pull/${pull}.patch"
-    git am -3 "$dir/${pull}.patch" || { 
-        echo "Failed to merge. Stopping now"
-        exit 1
-    }
+PR_REGEX="^\#"
+for item in ${PRS[@]}; do
+    if [[ "$item" =~ $PR_REGEX ]]; then
+        pull="$(echo $item | sed 's/^\#//')"
+        echo "Cherry-picking https://github.com/${MAIN_REPO_ORG}/${MAIN_REPO_NAME}/pull/${pull}.patch"
+        curl -o "$dir/${pull}.patch" -sSL "https://github.com/${MAIN_REPO_ORG}/${MAIN_REPO_NAME}/pull/${pull}.patch"
+        git am -3 "$dir/${pull}.patch" || { 
+            echo "Failed to merge. Stopping now"
+            exit 1
+        }
+    else
+        echo "Pulling existing change $item"
+    fi
 done
 
 echo Once fixups done, run git push --force-with-lease
