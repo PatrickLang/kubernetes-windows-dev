@@ -31,7 +31,7 @@ Guide to developing Kubernetes on Windows
 - [Testing Kubernetes](#testing-kubernetes)
     - [Sources for kubetest](#sources-for-kubetest)
     - [Building kubetest](#building-kubetest)
-    - [Running kubetest](#running-kubetest)
+    - [Running Tests](#running-tests)
         - [On an existing cluster](#on-an-existing-cluster)
         - [With a new cluster on Azure](#with-a-new-cluster-on-azure)
 - [Building Other Components](#building-other-components)
@@ -382,14 +382,16 @@ git checkout release-1.12
 git push -u origin release-1.12
 ```
 
-5. (optional) Make a cherry-pick branch
+5. (optional) Cherry-pick a PR that hasn't been merged.
+
+> This is an example of how to cherry-pick a single change. It's out of date as of November 2018, so don't use this as-is. The most up-to-date list of cherry picks is now in [scripts/prfetch.sh](scripts/prfetch.sh)
+
+Make a cherry-pick branch
 
 ```bash
 git checkout -b 1.12-cherrypick
 git push --set-upstream origin 1.12-cherrypick
 ```
-
-6. (optional) Cherry-pick a PR that hasn't been merged.
 
 This example uses https://github.com/kubernetes/kubernetes/pull/67435. You need two pieces of information from the PR:
 
@@ -406,12 +408,6 @@ git cherry-pick 3cb62394911261e3d8025d191a3ca80e6a712a67
 git push
 ```
 
-7. Create a branch for your PR
-
-```bash
-git checkout -b mybugfix
-git push --set-upstream origin mybugfix
-```
 
 #### Kubernetes Enlistment for build VM
 
@@ -571,11 +567,15 @@ git pull
 Once complete, the binary will be available at:
 `~/go/src/k8s.io/kubernetes/_output/dockerized/bin/linux/amd64/e2e.test`
 
-### Running kubetest
+### Running Tests
 
 #### On an existing cluster
 
-The Kubernetes tests are also in the kubernetes/kubernetes repo. You can easily build and run them from the same VM used to build the Windows binaries.
+The Kubernetes tests are also in the kubernetes/kubernetes repo. You can easily build and run them from the same VM used to build the Windows binaries. The binary is `e2e.test`.
+
+> The PR fetching script at [scripts/prfetch.sh](scripts/prfetch.sh) also includes the needed changes to `e2e.test`
+
+
 
 ```bash
 export KUBE_MASTER=local
