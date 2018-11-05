@@ -40,7 +40,7 @@ if [ -d .git ]; then
     git reset --hard master
     git reset HEAD -- .
 else
-    git clone git@github.com:${AGGREGATION_REPO_ORG}/${AGGREGATION_REPO_NAME}.git
+    git clone git@github.com:${AGGREGATION_REPO_ORG}/${AGGREGATION_REPO_NAME}.git .
     git remote add upstream https://github.com/${MAIN_REPO_ORG}/${MAIN_REPO_NAME}.git
     git fetch upstream
     git checkout ${AGGREGATION_BRANCH}
