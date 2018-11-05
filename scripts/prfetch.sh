@@ -9,6 +9,7 @@ dir=$(mktemp -d)
 # substitutes
 # #67884 - 3a942e11607f538471075e871b172e032f5f1942
 # fixup after 63600 b6ffa3fdb583303b47c80409ee23e4314b810832 - need to fix this, seems to be modifying dockershim
+# 70156 - 295a78db16342b7400843b8af0de47bed72994e5
 
 export PRS=$(cat <<-END
 #61778
@@ -16,7 +17,7 @@ export PRS=$(cat <<-END
 #67435
 3a942e11607f538471075e871b172e032f5f1942
 #69525
-#70156
+295a78db16342b7400843b8af0de47bed72994e5
 END
 )
 
