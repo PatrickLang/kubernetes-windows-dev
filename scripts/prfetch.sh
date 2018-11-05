@@ -8,11 +8,11 @@ dir=$(mktemp -d)
 
 # substitutes
 # #67884 - a17a561a9e00c126a3cdb347e1ce415b536045d5
+# b6ffa3fdb583303b47c80409ee23e4314b810832 - need to fix this, seems to be modifying dockershim
 
 export PRS=$(cat <<-END
 #61778
 #63600
-b6ffa3fdb583303b47c80409ee23e4314b810832
 #67435
 a17a561a9e00c126a3cdb347e1ce415b536045d5
 #69525
