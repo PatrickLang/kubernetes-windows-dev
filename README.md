@@ -532,6 +532,8 @@ It is updated regularly and already contains the bits necessary for deploying cl
 
 `kubetest` is the end to end test runner for Kubernetes. It's built from the kubernetes/kubernetes repo, but a few changes are needed for it to work on Windows. For the latest, check out the "waiting on merge" column in the [Windows Kubernetes E2E testing board](https://trello.com/b/QexBE5HK/windows-kubernetets-ee-testing)
 
+> Note: this list is probably not up to date - be sure to check the trello board first.
+
 - Cherry-picks needed
   - https://github.com/kubernetes/kubernetes/pull/69571
   - https://github.com/kubernetes/kubernetes/pull/69525
