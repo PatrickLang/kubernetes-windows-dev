@@ -627,10 +627,83 @@ The same dev VM has everything you need to build the Azure CNI repo. Clone it in
 ./build/build-all-containerized.sh windows amd64
 ```
 
-### ContainerD
+## Using ContainerD
+
+### Building ContainerD
+
+> Work in progress
+
+#### Getting Source
+
+```
+user@machine:/> cd $GOPATH
+user@machine:/> mkdir -p src/github.com/containerd
+user@machine:/> cd src/github.com/containerd
+user@machine:/> git clone https://github.com/containerd/containerd.git
+```
+
+#### Building it
+
+```
+user@machine:/> cd $GOPATH/src/github.com/containerd/containerd
+user@machine:/> export GOOS=windows
+user@machine:/> make
++ bin/ctr.exe
++ bin/containerd.exe
++ bin/containerd-stress.exe
++ bin/containerd-release.exe
++ bin/containerd-shim-runhcs-v1.exe
++ binaries
+```
+
+#### Revendoring to get hcsshim changes
+
+```
+user@machine:/> go get -u github.com/lk4d4/vndr
+user@machine:/> vndr github.com/Microsoft/hcsshim <new-git-commit>
+```
+
+If you intend to include a vendored change in a PR to containerd, be sure to update `vendor.conf` too.
+
+### Setting up a node with ContainerD
 
 >TODO - Testing Windows Server 2019 with ContainerD. VM work started here: https://github.com/patricklang/packer-windows/tree/containerd
 
+> TODO: merge in some of the steps from Saswat's guide https://github.com/SaswatB/windows-cri-kubernetes 
+
+Checklist
+
+- [ ] ContainerD.exe with CRI enabled
+  - [ ] containerd-shim-runhcs-v1.exe
+  - [ ] ctr.exe - used for managing containers directly with ContainerD (but not CRI)
+  - [ ] runhcs.exe
+  - [ ] crictl.exe - used for managing sandboxes(pods) and containers using CRI [src](https://github.com/kubernetes-sigs/cri-tools/) [doc](https://github.com/kubernetes-sigs/cri-tools/blob/master/docs/crictl.md)
+- [ ] Getting kubelet configured to use CRI endpoint instead of dockershim
+
+
+Create ContainerD config
+
+If you don't already have a config file the daemon can generate one for you:
+```
+C:\> containerd.exe config default > config.toml
+```
+
+(Common areas of the config to change)
+root - The root where all daemon data is kept
+state - The state directory where all plugin data is kept snapshots, images, container bundles, etc.
+grpc 
+address - The address the containerd daemon will serve. Default is: \\.\pipe\containerd-containerd
+debug 
+level - Set to debug for all daemon debugging
+
+
+Confirm ContainerD can pull & run an image
+
+```
+ctr.exe --debug images pull mcr.microsoft.com/windows/nanoserver:1809
+
+ctr.exe run --runtime io.containerd.runhcs.v1 --rm mcr.microsoft.com/windows/nanoserver:1809 argon-test cmd /c "echo Hello World!"
+```
 
 ## Quick tips on Windows administration
 
