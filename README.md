@@ -629,6 +629,8 @@ The same dev VM has everything you need to build the Azure CNI repo. Clone it in
 
 ## Using ContainerD
 
+[SaswatB](https://github.com/Saswat) Set up a working environment for testing Kubernetes. It's in the Microsoft SDN repo and is used for the Windows CNI dev/test environments. You can get those scripts here https://github.com/Microsoft/SDN/tree/master/Kubernetes/containerd . I'm aiming to get this better consolidated to clarify how to build and set things up if your setup doesn't match what's prescribed in those scripts.
+
 ### Building ContainerD
 
 > Work in progress
@@ -669,15 +671,19 @@ If you intend to include a vendored change in a PR to containerd, be sure to upd
 
 >TODO - Testing Windows Server 2019 with ContainerD. VM work started here: https://github.com/patricklang/packer-windows/tree/containerd
 
-> TODO: merge in some of the steps from Saswat's guide https://github.com/SaswatB/windows-cri-kubernetes 
+Binaries needed
 
-Checklist
-
-- [ ] ContainerD.exe with CRI enabled
+- [ ] For the CRI-ContainerD daemon:
+  - [ ] containerd.exe
   - [ ] containerd-shim-runhcs-v1.exe
-  - [ ] ctr.exe - used for managing containers directly with ContainerD (but not CRI)
   - [ ] runhcs.exe
+- [ ] Containerd & CRI clients:
+  - [ ] ctr.exe - used for managing containers directly with ContainerD (but not CRI)
   - [ ] crictl.exe - used for managing sandboxes(pods) and containers using CRI [src](https://github.com/kubernetes-sigs/cri-tools/) [doc](https://github.com/kubernetes-sigs/cri-tools/blob/master/docs/crictl.md)
+
+Configuration Steps
+- [ ] Register ContainerD as service
+  - [ ] Enable CRI listener for ContainerD.exe
 - [ ] Getting kubelet configured to use CRI endpoint instead of dockershim
 
 
@@ -700,9 +706,35 @@ level - Set to debug for all daemon debugging
 Confirm ContainerD can pull & run an image
 
 ```
-ctr.exe --debug images pull mcr.microsoft.com/windows/nanoserver:1809
+ctr.exe images pull mcr.microsoft.com/windows/nanoserver:1809
+ctr.exe run --rm mcr.microsoft.com/windows/nanoserver:1809 argon-test cmd /c "echo Hello World!"
+```
 
-ctr.exe run --runtime io.containerd.runhcs.v1 --rm mcr.microsoft.com/windows/nanoserver:1809 argon-test cmd /c "echo Hello World!"
+Example Output:
+
+```none
+PS C:\containerd> ./ctr.exe images pull mcr.microsoft.com/windows/nanoserver:1809
+mcr.microsoft.com/windows/nanoserver:1809:                                        resolved       |++++++++++++++++++++++++++++++++++++++|
+index-sha256:75bae46687f544f139ec57e1925d184fbb2ed70f6e0e5c993a55bd4f8e8e17a8:    exists         |++++++++++++++++++++++++++++++++++++++|
+manifest-sha256:6603a3e57f2d127fbddbc7b0aa3807b02b3c25163a7c6404da1d107ce33549c4: exists         |++++++++++++++++++++++++++++++++++++++|
+manifest-sha256:5953d8407d58ddc66e3eb426e320e93786a3cb173957cc5af79d46f731f3301c: exists         |++++++++++++++++++++++++++++++++++++++|
+config-sha256:3601d6edd492515e2f9b352db93b0d67af0d49f1178561b5a5d50e1232c0276a:   done           |++++++++++++++++++++++++++++++++++++++|
+layer-sha256:1046f7eb9dcd29d2478f707dca8726d2ae066a276196e327bd386d50f6448b2a:    done           |++++++++++++++++++++++++++++++++++++++|
+config-sha256:4702b277b15f4ce1a1a3f26092229e7b79f8f6e11450d9d171bcf7367ab96350:   done           |++++++++++++++++++++++++++++++++++++++|
+elapsed: 0.5 s                                                                    total:   0.0 B (0.0 B/s)              
+unpacking windows/amd64 sha256:75bae46687f544f139ec57e1925d184fbb2ed70f6e0e5c993a55bd4f8e8e17a8...
+done
+PS C:\containerd> ./ctr.exe run --rm mcr.microsoft.com/windows/nanoserver:1809 argon-test cmd /c "echo Hello World!"
+Hello World!
+```
+
+Confirm CRI enabled for ContainerD
+
+
+
+```none
+./crictl -r npipe:\\\\.\pipe\containerd-containerd pull mcr.microsoft.com/windows/nanoserver:1809
+Image is up to date for sha256:4702b277b15f4ce1a1a3f26092229e7b79f8f6e11450d9d171bcf7367ab96350
 ```
 
 ## Quick tips on Windows administration
