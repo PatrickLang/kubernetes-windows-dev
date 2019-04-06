@@ -687,7 +687,7 @@ Configuration Steps
 - [ ] Getting kubelet configured to use CRI endpoint instead of dockershim
 
 
-Create ContainerD config
+#### Create ContainerD config
 
 If you don't already have a config file the daemon can generate one for you:
 ```
@@ -702,8 +702,9 @@ address - The address the containerd daemon will serve. Default is: \\.\pipe\con
 debug 
 level - Set to debug for all daemon debugging
 
+> TODO: Missing CNI step
 
-Confirm ContainerD can pull & run an image
+#### Test using ContainerD to pull & run an image
 
 ```
 ctr.exe images pull mcr.microsoft.com/windows/nanoserver:1809
@@ -728,14 +729,41 @@ PS C:\containerd> ./ctr.exe run --rm mcr.microsoft.com/windows/nanoserver:1809 a
 Hello World!
 ```
 
-Confirm CRI enabled for ContainerD
+#### Test using CRI-ContainerD to pull and run an image
 
+> TODO: this doesn't work yet, section incomplete
 
+First, you need a sandbox/pod configuration. Copy this into a file `pod-sandbox-default.json`. It will create a process-isolated Windows pod.
+
+```json
+{
+    "metadata": {
+        "name": "sandbox",
+        "namespace": "default",
+        "attempt": 1
+    }
+}
+```
 
 ```none
 ./crictl -r npipe:\\\\.\pipe\containerd-containerd pull mcr.microsoft.com/windows/nanoserver:1809
 Image is up to date for sha256:4702b277b15f4ce1a1a3f26092229e7b79f8f6e11450d9d171bcf7367ab96350
 ```
+
+Create the sandbox with: `.\crictl -r npipe:\\\\.\pipe\containerd-containerd runp .\pod-sandbox-default.yml`
+
+
+Create a container config, copying this file into `container-config-windows-hello-world.json`
+
+```json
+
+```
+
+`.\crictl.exe create <POD-ID> .\container-config-windows-hello-world.json .\pod-sandbox-default.json`
+
+
+
+
 
 ## Quick tips on Windows administration
 
