@@ -675,8 +675,7 @@ Binaries needed
 
 - [ ] For the CRI-ContainerD daemon:
   - [ ] containerd.exe (built from [jterry75/cri](https://github.com/jterry75/cri/tree/windows_port/cmd/containerd))
-  - [ ] containerd-shim-runhcs-v1.exe (built from [containerd/containerd](https://github.com/containerd/containerd/tree/master/cmd/containerd-shim-runhcs-v1), but moving to [Microsoft/hcsshim](https://github.com/Microsoft/hcsshim/tree/master/cmd/containerd-shim-runhcs-v1))
-  - [ ] runhcs.exe (built from [Microsoft/hcsshim](https://github.com/Microsoft/hcsshim/tree/master/cmd/runhcs))
+  - [ ] containerd-shim-runhcs-v1.exe (built from [Microsoft/hcsshim](https://github.com/Microsoft/hcsshim/tree/master/cmd/containerd-shim-runhcs-v1))
 - [ ] Containerd & CRI clients:
   - [ ] ctr.exe - used for managing containers directly with ContainerD (but not CRI). [src](https://github.com/containerd/cri/tree/master/cmd/ctr)
   - [ ] crictl.exe - used for managing sandboxes(pods) and containers using CRI [src](https://github.com/kubernetes-sigs/cri-tools/) [doc](https://github.com/kubernetes-sigs/cri-tools/blob/master/docs/crictl.md)
