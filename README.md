@@ -733,6 +733,7 @@ PS C:\containerd> ./ctr.exe run --rm mcr.microsoft.com/windows/nanoserver:1809 a
 Hello World!
 ```
 
+
 #### Test using CRI-ContainerD to pull and run an image
 
 > TODO: this doesn't work yet, section incomplete. ContainerD fails to start a container without a CNI configured.
@@ -766,7 +767,11 @@ Create a container config, copying this file into `container-config-windows-hell
 `.\crictl.exe create <POD-ID> .\container-config-windows-hello-world.json .\pod-sandbox-default.json`
 
 
+#### Viewing running local pods with crictl
 
+`crictl -r npipe:\\\\.\pipe\containerd-containerd pods`
+
+`crictl -r npipe:\\\\.\pipe\containerd-containerd inspectp 1c0e277aba1e1`
 
 
 ## Quick tips on Windows administration
