@@ -629,7 +629,7 @@ The same dev VM has everything you need to build the Azure CNI repo. Clone it in
 
 ## Using ContainerD
 
-[SaswatB](https://github.com/Saswat) Set up a working environment for testing Kubernetes. It's in the Microsoft SDN repo and is used for the Windows CNI dev/test environments. You can get those scripts here https://github.com/Microsoft/SDN/tree/master/Kubernetes/containerd . I'm aiming to get this better consolidated to clarify how to build and set things up if your setup doesn't match what's prescribed in those scripts.
+[SaswatB](https://github.com/SaswatB) Set up a working environment for testing Kubernetes. It's in the Microsoft SDN repo and is used for the Windows CNI dev/test environments. You can get those scripts here https://github.com/Microsoft/SDN/tree/master/Kubernetes/containerd . I'm aiming to get this better consolidated to clarify how to build and set things up if your setup doesn't match what's prescribed in those scripts.
 
 ### Building ContainerD
 
@@ -674,11 +674,11 @@ If you intend to include a vendored change in a PR to containerd, be sure to upd
 Binaries needed
 
 - [ ] For the CRI-ContainerD daemon:
-  - [ ] containerd.exe
-  - [ ] containerd-shim-runhcs-v1.exe
-  - [ ] runhcs.exe
+  - [ ] containerd.exe (built from [jterry75/cri](https://github.com/jterry75/cri/tree/windows_port/cmd/containerd))
+  - [ ] containerd-shim-runhcs-v1.exe (built from [containerd/containerd](https://github.com/containerd/containerd/tree/master/cmd/containerd-shim-runhcs-v1), but moving to [Microsoft/hcsshim](https://github.com/Microsoft/hcsshim/tree/master/cmd/containerd-shim-runhcs-v1))
+  - [ ] runhcs.exe (built from [Microsoft/hcsshim](https://github.com/Microsoft/hcsshim/tree/master/cmd/runhcs))
 - [ ] Containerd & CRI clients:
-  - [ ] ctr.exe - used for managing containers directly with ContainerD (but not CRI)
+  - [ ] ctr.exe - used for managing containers directly with ContainerD (but not CRI). [src](https://github.com/containerd/cri/tree/master/cmd/ctr)
   - [ ] crictl.exe - used for managing sandboxes(pods) and containers using CRI [src](https://github.com/kubernetes-sigs/cri-tools/) [doc](https://github.com/kubernetes-sigs/cri-tools/blob/master/docs/crictl.md)
 
 Configuration Steps
@@ -731,7 +731,7 @@ Hello World!
 
 #### Test using CRI-ContainerD to pull and run an image
 
-> TODO: this doesn't work yet, section incomplete
+> TODO: this doesn't work yet, section incomplete. ContainerD fails to start a container without a CNI configured.
 
 First, you need a sandbox/pod configuration. Copy this into a file `pod-sandbox-default.json`. It will create a process-isolated Windows pod.
 
@@ -750,7 +750,7 @@ First, you need a sandbox/pod configuration. Copy this into a file `pod-sandbox-
 Image is up to date for sha256:4702b277b15f4ce1a1a3f26092229e7b79f8f6e11450d9d171bcf7367ab96350
 ```
 
-Create the sandbox with: `.\crictl -r npipe:\\\\.\pipe\containerd-containerd runp .\pod-sandbox-default.yml`
+Create the sandbox with: `.\crictl -r npipe:\\\\.\pipe\containerd-containerd runp .\pod-sandbox-default.json`
 
 
 Create a container config, copying this file into `container-config-windows-hello-world.json`
