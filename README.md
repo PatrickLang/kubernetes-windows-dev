@@ -644,6 +644,19 @@ user@machine:/> cd src/github.com/containerd
 user@machine:/> git clone https://github.com/containerd/containerd.git
 ```
 
+
+#### Revendoring to get hcsshim changes
+
+> This is optional, only if you're testing changes to hcsshim. This won't be needed once `containerd-shim-runhcs-v1.exe` is built directly from the hcsshim repo.
+
+```
+user@machine:/> go get -u github.com/lk4d4/vndr
+user@machine:/> vndr github.com/Microsoft/hcsshim <new-git-commit>
+```
+
+If you intend to include a vendored change in a PR to containerd, be sure to update `vendor.conf` too.
+
+
 #### Building it
 
 ```
@@ -658,14 +671,21 @@ user@machine:/> make
 + binaries
 ```
 
-#### Revendoring to get hcsshim changes
 
-```
-user@machine:/> go get -u github.com/lk4d4/vndr
-user@machine:/> vndr github.com/Microsoft/hcsshim <new-git-commit>
+### Building CNI meta-plugins compatible with ContainerD
+
+> Note: these steps depend on this PR https://github.com/Microsoft/windows-container-networking/pull/24. If that's not yet merged, pull from the fork listed in the PR
+
+Clone https://github.com/Microsoft/windows-container-networking on your Linux dev/build machine, then run:
+
+```bash
+make dev
+# in the container
+make all
+exit
 ```
 
-If you intend to include a vendored change in a PR to containerd, be sure to update `vendor.conf` too.
+That will produce `nat.exe`, `sdnbridge.exe`, and `sdnoverlay.exe` which are needed later.
 
 ### Setting up a node with ContainerD
 
