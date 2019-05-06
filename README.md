@@ -38,9 +38,8 @@ Guide to developing Kubernetes on Windows
     - [Azure-CNI](#azure-cni)
 - [Using ContainerD](#using-containerd)
     - [Building ContainerD](#building-containerd)
-        - [Getting Source](#getting-source)
+        - [Building the CRI plugin](#building-the-cri-plugin)
         - [Revendoring to get hcsshim changes](#revendoring-to-get-hcsshim-changes)
-        - [Building it](#building-it)
     - [Building CNI meta-plugins compatible with ContainerD](#building-cni-meta-plugins-compatible-with-containerd)
     - [Setting up a node with ContainerD](#setting-up-a-node-with-containerd)
         - [Create ContainerD config](#create-containerd-config)
@@ -643,17 +642,54 @@ The same dev VM has everything you need to build the Azure CNI repo. Clone it in
 
 ### Building ContainerD
 
-> Work in progress
-
-#### Getting Source
+> Don't do this yet. Right now binaries need to be built from jterry75/cri to include CRI support. Skip to the next section
 
 ```
-user@machine:/> cd $GOPATH
-user@machine:/> mkdir -p src/github.com/containerd
-user@machine:/> cd src/github.com/containerd
-user@machine:/> git clone https://github.com/containerd/containerd.git
+user@machine:/> cd $GOPATH/src/github.com/containerd/containerd
+user@machine:/> export GOOS=windows
+user@machine:/> make
++ bin/ctr.exe
++ bin/containerd.exe
++ bin/containerd-stress.exe
++ bin/containerd-release.exe
++ bin/containerd-shim-runhcs-v1.exe
++ binaries
 ```
 
+
+#### Building the CRI plugin
+
+> This is a temporary source location. Sometime in May/June 2019, it should move back to containerd/cri
+
+```bash
+cd $GOPATH
+mkdir -p src/github.com/containerd
+cd src/github.com/containerd
+git clone https://github.com/containerd/cri.git
+cd cri
+git remote add jterry75 https://github.com/jterry75/cri.git
+git fetch jterry75
+git checkout windows_port
+export GOOS=windows
+make
+```
+
+This will produce `_output/containerd.exe` and `ctr.exe`
+
+
+```
+$ make
+go build -o _output/containerd.exe \
+         \
+        -ldflags '-X github.com/containerd/cri/vendor/github.com/containerd/containerd/version.Version=8af69c40-TEST' \
+        -gcflags '' \
+        github.com/containerd/cri/cmd/containerd
+go build -o _output/ctr.exe \
+         \
+        -ldflags '-X github.com/containerd/cri/vendor/github.com/containerd/containerd/version.Version=8af69c40-TEST' \
+        -gcflags '' \
+        github.com/containerd/cri/cmd/ctr
+```
 
 #### Revendoring to get hcsshim changes
 
@@ -667,19 +703,6 @@ user@machine:/> vndr github.com/Microsoft/hcsshim <new-git-commit>
 If you intend to include a vendored change in a PR to containerd, be sure to update `vendor.conf` too.
 
 
-#### Building it
-
-```
-user@machine:/> cd $GOPATH/src/github.com/containerd/containerd
-user@machine:/> export GOOS=windows
-user@machine:/> make
-+ bin/ctr.exe
-+ bin/containerd.exe
-+ bin/containerd-stress.exe
-+ bin/containerd-release.exe
-+ bin/containerd-shim-runhcs-v1.exe
-+ binaries
-```
 
 
 ### Building CNI meta-plugins compatible with ContainerD
