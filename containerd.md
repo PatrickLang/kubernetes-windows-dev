@@ -34,6 +34,20 @@ Getting all the binaries needed will require building from multiple repos. Here'
     - SDNOverlay.exe - if using `overlay` mode - source:[Microsoft/windows-container-networking](https://github.com/Microsoft/windows-container-networking/tree/master/plugins)
 
 
+#### Building containerd-shim-runhcs-v1
+
+
+Getting the source
+
+```bash
+go get github.com/Microsoft/hcsshim
+```
+
+Building it
+
+```bash
+GOOS=windows go build github.com/Microsoft/hcsshim/cmd/containerd-shim-runhcs-v1
+```
 
 
 #### Building the CRI plugin
