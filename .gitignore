@@ -3,3 +3,4 @@
 vagrant/.vagrant/
 vagrant/*.exe
 vagrant/*.config
+scripts/_output
