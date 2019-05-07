@@ -1,3 +1,18 @@
+# Kubernetes, Windows, and CRI-ContainerD
+
+This page describes how to build and set up CRI-ContainerD with Kubernetes on Windows. This work is tracked for Kubernetes 1.15 as [enhancement#1001](https://github.com/kubernetes/enhancements/issues/1001). For more background on how this will be used and tested, please review the [kep](https://github.com/kubernetes/enhancements/blob/master/keps/sig-windows/20190424-windows-cri-containerd.md).
+
+
+
+
+## Revision History
+
+Date       | Description
+-----------|------------
+2019-05-07 | Split out from README.md
+
+
+
 ## Using ContainerD
 
 [SaswatB](https://github.com/SaswatB) Set up a working environment for testing Kubernetes. It's in the Microsoft SDN repo and is used for the Windows CNI dev/test environments. You can get those scripts here https://github.com/Microsoft/SDN/tree/master/Kubernetes/containerd . I'm aiming to get this better consolidated to clarify how to build and set things up if your setup doesn't match what's prescribed in those scripts.
