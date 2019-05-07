@@ -34,21 +34,6 @@ Getting all the binaries needed will require building from multiple repos. Here'
     - SDNOverlay.exe - if using `overlay` mode - source:[Microsoft/windows-container-networking](https://github.com/Microsoft/windows-container-networking/tree/master/plugins)
 
 
-### Future: Building from containerd/containerd
-
-> Don't do this yet. Right now binaries need to be built from jterry75/cri to include CRI support. Skip to the next section
-
-```
-user@machine:/> cd $GOPATH/src/github.com/containerd/containerd
-user@machine:/> export GOOS=windows
-user@machine:/> make
-+ bin/ctr.exe
-+ bin/containerd.exe
-+ bin/containerd-stress.exe
-+ bin/containerd-release.exe
-+ bin/containerd-shim-runhcs-v1.exe
-+ binaries
-```
 
 
 #### Building the CRI plugin
@@ -71,17 +56,6 @@ make
 This will produce `_output/containerd.exe` and `ctr.exe`
 
 
-#### Revendoring to get hcsshim changes
-
-> This is optional, only if you're testing changes to hcsshim. This won't be needed once `containerd-shim-runhcs-v1.exe` is built directly from the hcsshim repo.
-
-```
-user@machine:/> go get -u github.com/lk4d4/vndr
-user@machine:/> vndr github.com/Microsoft/hcsshim <new-git-commit>
-```
-
-If you intend to include a vendored change in a PR to containerd, be sure to update `vendor.conf` too.
-
 
 ### Building CNI meta-plugins compatible with ContainerD
 
@@ -98,7 +72,39 @@ exit
 
 That will produce `nat.exe`, `sdnbridge.exe`, and `sdnoverlay.exe` which are needed later.
 
-### Setting up a node with ContainerD
+
+
+### Future: Building from containerd/containerd
+
+> Don't do this yet. Right now binaries need to be built from jterry75/cri to include CRI support. Skip to the next section
+
+```
+user@machine:/> cd $GOPATH/src/github.com/containerd/containerd
+user@machine:/> export GOOS=windows
+user@machine:/> make
++ bin/ctr.exe
++ bin/containerd.exe
++ bin/containerd-stress.exe
++ bin/containerd-release.exe
++ bin/containerd-shim-runhcs-v1.exe
++ binaries
+```
+
+#### Future: Revendoring to get hcsshim changes
+
+> This is optional, only if you're testing changes to hcsshim. This won't be needed once `containerd-shim-runhcs-v1.exe` is built directly from the hcsshim repo.
+
+```
+user@machine:/> go get -u github.com/lk4d4/vndr
+user@machine:/> vndr github.com/Microsoft/hcsshim <new-git-commit>
+```
+
+If you intend to include a vendored change in a PR to containerd, be sure to update `vendor.conf` too.
+
+
+
+
+## Setting up a node with ContainerD
 
 >TODO - Testing Windows Server 2019 with ContainerD. VM work started here: https://github.com/patricklang/packer-windows/tree/containerd
 
