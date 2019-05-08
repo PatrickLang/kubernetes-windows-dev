@@ -34,4 +34,4 @@ zip windows-cri-containerd.zip *.exe *.txt
 EOF
 chmod +x $OUTDIR/build.sh
 
-docker run -it -v $OUTDIR:/output golang:1.10 /bin/bash -c /output/build.sh
+docker run -it -v $OUTDIR:/output golang:1.12.4 /bin/bash -c /output/build.sh
