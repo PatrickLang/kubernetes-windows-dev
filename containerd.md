@@ -34,6 +34,11 @@ Getting all the binaries needed will require building from multiple repos. Here'
     - SDNOverlay.exe - if using `overlay` mode - source:[Microsoft/windows-container-networking](https://github.com/Microsoft/windows-container-networking/tree/master/plugins)
 
 
+There's a convenience script you can run from a Linux or Mac with Docker installed. It will create two zip files
+with everything you need.
+
+See [scripts/buildPackage.sh](scripts/buildPackage.sh)
+
 #### Building containerd-shim-runhcs-v1
 
 
