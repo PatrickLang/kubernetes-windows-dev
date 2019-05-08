@@ -7,7 +7,7 @@ if [ ! -d $OUTDIR ]; then
     mkdir $OUTDIR
 fi
 
-cat <<EOF > $OUTDIR/build.sh
+cat <<EOF > $OUTDIR/buildcri.sh
 set -e -x -o pipefail
 export GOOS=windows
 export GOARCH=amd64
@@ -31,7 +31,32 @@ apt update
 apt install -y zip
 cd /output
 zip windows-cri-containerd.zip *.exe *.txt
+rm -f /output/*.exe
+rm -f /output/*.txt
 EOF
-chmod +x $OUTDIR/build.sh
+chmod +x $OUTDIR/buildcri.sh
 
-docker run -it -v $OUTDIR:/output golang:1.12.4 /bin/bash -c /output/build.sh
+cat <<EOF > $OUTDIR/buildcni.sh
+set -e -x -o pipefail
+export GOOS=windows
+export GOARCH=amd64
+mkdir -p src/github.com/Microsoft
+cd src/github.com/Microsoft
+git clone https://github.com/Microsoft/windows-container-networking.git
+cd windows-container-networking
+git rev-parse HEAD > /output/cni-revision.txt
+make all
+mv out/*.exe /output
+apt update
+apt install -y zip
+cd /output
+zip windows-cni-containerd.zip *.exe *.txt
+rm -f /output/*.exe
+rm -f /output/*.txt
+EOF
+chmod +x $OUTDIR/buildcni.sh
+
+
+
+docker run -it -v $OUTDIR:/output golang:1.12.4 /bin/bash -c /output/buildcri.sh
+docker run -it -v $OUTDIR:/output golang:1.12.4 /bin/bash -c /output/buildcni.sh
