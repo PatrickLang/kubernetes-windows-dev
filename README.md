@@ -9,16 +9,17 @@ Guide to developing Kubernetes on Windows
     - [Documentation and samples](#documentation-and-samples)
 - [Required tools](#required-tools)
 - [Building a cluster](#building-a-cluster)
-    - [Example acs-engine apimodel](#example-acs-engine-apimodel)
+    - [Example aks-engine apimodel](#example-aks-engine-apimodel)
 - [Creating Windows pod deployments](#creating-windows-pod-deployments)
 - [Connecting to a Windows node](#connecting-to-a-windows-node)
     - [Simple method - Remote Desktop](#simple-method---remote-desktop)
+    - [Scriptable method - SSH](#scriptable-method---ssh)
     - [Scriptable method - PowerShell Remoting](#scriptable-method---powershell-remoting)
         - [If WinRM isn't enabled](#if-winrm-isnt-enabled)
 - [Collecting Logs](#collecting-logs)
-- [Hacking ACS-Engine](#hacking-acs-engine)
-    - [ACS-Engine Enlistment](#acs-engine-enlistment)
-    - [ACS-Engine Build](#acs-engine-build)
+- [Hacking AKS-Engine](#hacking-aks-engine)
+    - [AKS-Engine Enlistment](#aks-engine-enlistment)
+    - [AKS-Engine Build](#aks-engine-build)
 - [Hacking on Kubernetes for Windows](#hacking-on-kubernetes-for-windows)
     - [Setting up a dev/build environment](#setting-up-a-devbuild-environment)
         - [Kubernetes Enlistment for dev box](#kubernetes-enlistment-for-dev-box)
@@ -37,15 +38,6 @@ Guide to developing Kubernetes on Windows
 - [Building Other Components](#building-other-components)
     - [Azure-CNI](#azure-cni)
 - [Using ContainerD](#using-containerd)
-    - [Building ContainerD](#building-containerd)
-        - [Building the CRI plugin](#building-the-cri-plugin)
-        - [Revendoring to get hcsshim changes](#revendoring-to-get-hcsshim-changes)
-    - [Building CNI meta-plugins compatible with ContainerD](#building-cni-meta-plugins-compatible-with-containerd)
-    - [Setting up a node with ContainerD](#setting-up-a-node-with-containerd)
-        - [Create ContainerD config](#create-containerd-config)
-        - [Test using ContainerD to pull & run an image](#test-using-containerd-to-pull--run-an-image)
-        - [Test using CRI-ContainerD to pull and run an image](#test-using-cri-containerd-to-pull-and-run-an-image)
-        - [Viewing running local pods with crictl](#viewing-running-local-pods-with-crictl)
 - [Quick tips on Windows administration](#quick-tips-on-windows-administration)
     - [If you did this in bash, do this in PowerShell](#if-you-did-this-in-bash-do-this-in-powershell)
 - [Credits](#credits)
@@ -57,42 +49,41 @@ Guide to developing Kubernetes on Windows
 Windows has it's own Kubernetes special interest group (SIG). The weekly meeting schedule, agenda and past recordings are all on the [SIG-Windows community page](https://github.com/kubernetes/community/tree/master/sig-windows). 
 
 
-For v1.13, the sole focus is on getting Kubernetes stable and fixing outstanding conformance bugs. This [GitHub project board](https://github.com/PatrickLang/k8s-project-management/projects/1) tracks the work in these areas.
+This [GitHub project board](https://github.com/orgs/kubernetes/projects/8) shows the backlog and work-in progress for the current release.
 
 ### Features and Bugs
 
-Major features and bugs are tracked in [Windows K8s roadmap](https://trello.com/b/rjTqrwjl/windows-k8s-roadmap) trello board, and updated in the weekly SIG-Windows meetings. If the items linked to the cards aren't assigned, feel free to assign them to yourself and get started hacking on them. For more up to date details, you can query for open issues & PRs with the [sig/windows label](https://github.com/kubernetes/kubernetes/labels/sig%2Fwindows) in kubernetes/kubernetes.
+Major features and bugs are tracked in [GitHub project board](https://github.com/orgs/kubernetes/projects/8), and updated in the weekly SIG-Windows meetings. If the items linked to the cards aren't assigned, feel free to assign them to yourself and get started hacking on them. For more up to date details, you can query for open issues & PRs with the [sig/windows label](https://github.com/kubernetes/kubernetes/labels/sig%2Fwindows) in kubernetes/kubernetes.
 
 
 ### Testing
 
-We're currently working on bringing daily and PR tests up using Prow, Kubetest, and the other tools in [kubernetes/test-infra](https://github.com/kubernetes/test-infra). The [Windows Kubernetes E2E Test](https://trello.com/b/QexBE5HK/windows-kubernetets-ee-testing) board on Trello has the current progress.
+The current test results are available on [TestGrid]. These are run by Prow on a periodic basis, using the [SIG-Windows Job Definitions]
 
+If you want to learn more about the Kubernetes test infrastructure, it's best to start with the [test-infra docs] and this [intro from SIG-Testing].
 
 ### Documentation and samples
 
-There are some documentation topics listed in the [Windows K8s roadmap](https://trello.com/b/rjTqrwjl/windows-k8s-roadmap) trello board. Feel free to assign them (or contact us on Slack if you need help) and start writing. We definitely need documentation and samples for common scenarios including horizontal pod autoscaling, persistent volume claims, persistent sets, and applications using Kubernetes secrets and configmaps.
-
-> TODO: link master issue for Windows API tracking
+User documentation is kept in the [kubernetes/website] repo. The rendered version is at [docs.kubernetes.io]. Here's the [Intro to Windows in Kubernetes].
 
 ## Required tools
 
 - [Git](https://git-scm.com/)
 - [Docker Community Edition](https://store.docker.com/search?type=edition&offering=community)
 - (optional but awesome) [Visual Studio Code](https://code.visualstudio.com/)
-- (for Windows 10 version 1709 or older) [Putty and Pageant](https://github.com/Azure/acs-engine/blob/master/docs/ssh.md#key-management-and-agent-forwarding-with-windows-pageant) for SSH
+- (for Windows 10 version 1709 or older) [Putty and Pageant](https://github.com/Azure/acs-engine/blob/master/docs/ssh.md#key-management-and-agent-forwarding-with-windows-pageant) for SSH. Windows 10 version 1803 and later have `ssh.exe` built-in which you may use instead.
 
 If you're using Windows, use "Git Bash" as your command-line environment for building. It can run the same bash scripts as on Linux & Mac, and will run the build containers using Docker for Windows.
 
 ## Building a cluster
 
-[ACS-Engine](https://github.com/Azure/acs-engine/) is what I typically use to deploy clusters. There's a [walkthrough](https://github.com/Azure/acs-engine/blob/master/docs/kubernetes/windows.md) available that I recommend for your first deployment. The rest of this guide assumes you're using acs-engine, but the steps can easily be adapted to the other deployments.
+[AKS-Engine] is what I typically use to deploy clusters. There's a [AKS-Engine Windows Walkthrough] available that I recommend for your first deployment. The rest of this guide assumes you're using acs-engine, but the steps can easily be adapted to the other deployments.
 
-[Windows Kubernetes The Hard Way](https://github.com/pjh/kubernetes-the-hard-way) - Peter Hornyack has a guide available showing how to set up everything needed for a mixed Linux + Windows cluster on Google Cloud Platform.
+[Windows Kubernetes The Hard Way] - Peter Hornyack has a guide available showing how to set up everything needed for a mixed Linux + Windows cluster on Google Cloud Platform.
 
-[Kubernetes on Windows](https://docs.microsoft.com/en-us/virtualization/windowscontainers/kubernetes/getting-started-kubernetes-windows) - with host gateway routing. If you want full control over the whole process or don't want to take a dependency on a cloud provider and want to use the WinCNI reference plugin that's similar to kubenet, use this guide.
+[Intro to Windows in Kubernetes] - in the Kubernetes documentation also covers how to build an on-premises deployment
 
-### Example acs-engine apimodel
+### Example aks-engine apimodel
 
 This apimodel.json is a great starting point. It includes two optional settings:
 
@@ -105,7 +96,7 @@ This apimodel.json is a great starting point. It includes two optional settings:
   "properties": {
     "orchestratorProfile": {
       "orchestratorType": "Kubernetes",
-      "orchestratorVersion": "1.12",
+      "orchestratorVersion": "1.15",
       "kubernetesConfig": {
                "apiServerConfig" : {
                  "--feature-gates": "HyperVContainer=true"
@@ -124,13 +115,13 @@ This apimodel.json is a great starting point. It includes two optional settings:
 	    {
 		"name": "windowspool",
 		"count": 2,
-		"vmSize": "Standard_D2_v3",
+		"vmSize": "Standard_D2s_v3",
 		"availabilityProfile": "AvailabilitySet",
 		"osType": "Windows",
 		"osDiskSizeGB": 127,
 		"extensions": [
 		    {
-                        "name": "winrm"
+          "name": "winrm"
 		    }
 		]
 	    },
@@ -145,9 +136,7 @@ This apimodel.json is a great starting point. It includes two optional settings:
     "windowsProfile": {
 	    "adminUsername": "adminuser",
 	    "adminPassword": "",
-	    "windowsPublisher": "MicrosoftWindowsServer",
-	    "windowsOffer": "WindowsServerSemiAnnual",
-	    "windowsSku": "Datacenter-Core-1803-with-Containers-smalldisk"
+	    "sshEnabled": true
      },
     "extensionProfiles": [
       {
@@ -176,33 +165,40 @@ This apimodel.json is a great starting point. It includes two optional settings:
 
 ## Creating Windows pod deployments
 
-Once you have a cluster up, go ahead and run your first deployment. This assumes you have a Windows Server version 1803 node deployed. If you're using a different version, update the image with another tag for [microsoft/iis](https://hub.docker.com/r/microsoft/iis/) as needed.
+Once you have a cluster up, go ahead and run your first deployment. This assumes you have a Windows Server 2019 (or 1809) node deployed. If you're using a different version, update the image with another tag for [microsoft/iis](https://hub.docker.com/r/microsoft/iis/) as needed.
 
 ```json
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: iis-1803
+  name: iis-2019
   labels:
-    app: iis-1803
+    app: iis-2019
 spec:
   replicas: 1
   template:
     metadata:
-      name: iis-1803
+      name: iis-2019
       labels:
-        app: iis-1803
+        app: iis-2019
     spec:
       containers:
       - name: iis
-        image: microsoft/iis:windowsservercore-1803
+        image: mcr.microsoft.com/windows/servercore/iis:windowsservercore-ltsc2019
+        resources:
+          limits:
+            cpu: 1
+            memory: 800m
+          requests:
+            cpu: .1
+            memory: 300m
         ports:
           - containerPort: 80
       nodeSelector:
         "beta.kubernetes.io/os": windows
   selector:
     matchLabels:
-      app: iis-1803
+      app: iis-2019
 ---
 apiVersion: v1
 kind: Service
@@ -214,7 +210,7 @@ spec:
   - protocol: TCP
     port: 80
   selector:
-    app: iis-1803
+    app: iis-2019
 ```
 
 Here are some repos with more samples:
@@ -224,7 +220,7 @@ Here are some repos with more samples:
 
 ## Connecting to a Windows node
 
-This section assumes you deployed with ACS-Engine. If you deployed another way, some changes may be needed to access the Windows node. 
+This section assumes you deployed with [AKS-Engine]. If you deployed another way, some changes may be needed to access the Windows node. 
 
 ### Simple method - Remote Desktop
 
@@ -239,6 +235,12 @@ You can use SSH port forwarding with the Linux master node to forward a local po
 Once SSH is connected, use an RDP client to connect to `localhost:5500`. Use `mstsc.exe` on Windows, [FreeRDP](http://www.freerdp.com/) on Linux, or [Remote Desktop client](https://docs.microsoft.com/en-us/windows-server/remote/remote-desktop-services/clients/remote-desktop-mac) for Mac.
 
 When you initially connect, there will be a command prompt open (if using Server Core), otherwise you can use the start menu to open a new PowerShell window. If you're on Server Core - run `start powershell` in that window to open a new PowerShell window.
+
+### Scriptable method - SSH
+
+First, get the node's private IP with `kubectl get node` and `kubectl describe node`. Most likely it's in the range of `10.240.0.*`
+
+Next, SSH to the Linux master node, then to the node IP.
 
 ### Scriptable method - PowerShell Remoting
 
@@ -277,28 +279,28 @@ If WinRM wasn't enabled when you did the deployment with ACS-Engine, you can sti
 
 There's a handy script that you can use to collect kubelet, kube-proxy, Docker and Windows HCS and HNS logs from every node all at once - [logslurp](https://github.com/patricklang/logslurp)
 
-## Hacking ACS-Engine
+## Hacking AKS-Engine
 
-ACS-Engine work items for Windows are tracked in a GitHub [project](https://github.com/Azure/acs-engine/projects/3). Feel free to grab one if there's a feature or bug you need to work on.
+Work items for Windows are tracked in the [AKS-Engine] repo and tagged with Windows.
 
-### ACS-Engine Enlistment
+### AKS-Engine Enlistment
 
 
-1. Fork the [acs-engine](https://github.com/Azure/acs-engine) repo in GitHub.
+1. Fork the [AKS-Engine] repo in GitHub.
 
-2. Clone your fork of the ACS-Engine repo
+2. Clone your fork of the [AKS-Engine] repo
 
 ```bash
 # clone your fork as origin
-git clone https://github.com/<your_github_username>/acs-engine.git
+git clone https://github.com/<your_github_username>/aks-engine.git
 ```
 
-3. Set upstream to the main ACS-Engine repo.
+3. Set upstream to the main [AKS-Engine] repo.
 
 ```bash
-cd acs-engine
+cd aks-engine
 # add upstream repo
-git remote add upstream https://github.com/Azure/acs-engine.git
+git remote add upstream https://github.com/Azure/aks-engine.git
 ```
 
 > TODO: 4. (optional) Cherry-pick a PR that hasn't been merged.
@@ -309,17 +311,22 @@ git fetch ...
 git cherry-pick ...
 ```
 
-### ACS-Engine Build
+### AKS-Engine Build
 
-The ACS-Engine dev environment works great in containers. The repo has scripts to start it up:
+The AKS-Engine dev environment works great in containers using Docker for Windows or [WSL2]. The repo has scripts to start it up:
 
 Windows: run `.\makedev.ps1` in PowerShell
 
 Mac / Linux: run `make dev`
 
-Once it starts up, just run `make` to build the `acs-engine` binary for Linux. It will be placed at `bin/acs-engine`. This binary works great in Windows using WSL, or you can copy it to a Linux VM.
+Once it starts up, just run `make` to build the `aks-engine` binary for Linux. It will be placed at `bin/aks-engine`. This binary works great in Windows using WSL, or you can copy it to a Linux VM.
 
-> TODO: cross-build steps
+If you want to build Windows & Mac binaries, run `make build-cross`. The binaries will be in `_dist/aks-engine-<git tag>-<os>-<arch>`
+
+```bash
+ls _dist/
+aks-engine-ee33b2b-darwin-amd64  aks-engine-ee33b2b-linux-amd64  aks-engine-ee33b2b-windows-amd64
+```
 
 For more details, see the full [developers guide](https://github.com/Azure/acs-engine/blob/master/docs/developers.md)
 
@@ -354,7 +361,7 @@ Since you need to build on a Linux machine, I have found that it's easiest to pu
 
 I use a 3-deep branching strategy:
 
-1. Fetch an upstream branch such as master or release-1.12
+1. Fetch an upstream branch such as master or release-1.15
 2. Branch off that to aggregate open PRs
 3. Use a 3rd branch for my current changes
 
@@ -386,23 +393,23 @@ git remote add upstream https://github.com/kubernetes/kubernetes.git
 4. Fetch an upstream branch, and push it to your origin repo
 
 ```bash
-git fetch upstream release-1.12
-git checkout release-1.12
-git push -u origin release-1.12
+git fetch upstream release-1.15
+git checkout release-1.15
+git push -u origin release-1.15
 ```
 
 5. (optional) Cherry-pick a PR that hasn't been merged.
 
-> This is an example of how to cherry-pick a single change. It's out of date as of November 2018, so don't use this as-is. The most up-to-date list of cherry picks is now in [scripts/prfetch.sh](scripts/prfetch.sh)
+> For an example of how to automate this see [scripts/prfetch.sh](scripts/prfetch.sh)
 
 Make a cherry-pick branch
 
 ```bash
-git checkout -b 1.12-cherrypick
-git push --set-upstream origin 1.12-cherrypick
+git checkout -b 1.15-cherrypick
+git push --set-upstream origin 1.15-cherrypick
 ```
 
-This example uses https://github.com/kubernetes/kubernetes/pull/67435. You need two pieces of information from the PR:
+This example uses https://github.com/kubernetes/kubernetes/pull/67435. It merged long ago, so be sure to pick another PR if you want to try this on your own. You need two pieces of information from the PR:
 
 - The originating user (feiskyer) and branch (dns-cap)
 - The commit IDs (0dc1ac03df89295c3bf5ddb7122270febe12eca2 and 3cb62394911261e3d8025d191a3ca80e6a712a67)
@@ -654,3 +661,18 @@ bash | PowerShell
 ## Credits
 
 Some of the steps were borrowed from [Kubernetes Dev on Azure](https://github.com/khenidak/kubernetes-dev-on-azure). Thanks Kal!
+
+
+
+<!-- References --> 
+[TestGrid]: https://testgrid.k8s.io/sig-windows#aks-engine-azure-windows-master
+[SIG-Windows Job Definitions]: https://github.com/kubernetes/test-infra/tree/master/config/jobs/kubernetes-sigs/sig-windows
+[test-infra docs]: https://github.com/kubernetes/test-infra
+[intro from SIG-Testing]: https://www.youtube.com/watch?v=7-_O41W3FRU
+[kubernetes/website]: https://github.com/kubernetes/website/
+[docs.kubernetes.io]: https://docs.kubernetes.io
+[Intro to Windows in Kubernetes]: https://kubernetes.io/docs/setup/production-environment/windows/intro-windows-in-kubernetes/
+[AKS-Engine Windows Walkthrough]: https://github.com/Azure/aks-engine/blob/master/docs/topics/windows.md
+[AKS-Engine]: https://github.com/Azure/aks-engine
+[Windows Kubernetes The Hard Way]: https://github.com/pjh/kubernetes-the-hard-way
+[WSL2]: https://docs.microsoft.com/en-us/windows/wsl/wsl2-install
