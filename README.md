@@ -30,11 +30,6 @@ Guide to developing Kubernetes on Windows
         - [Copying binaries using Azure Files](#copying-binaries-using-azure-files)
         - [Replacing files on the node](#replacing-files-on-the-node)
 - [Testing Kubernetes](#testing-kubernetes)
-    - [Sources for kubetest](#sources-for-kubetest)
-    - [Building kubetest](#building-kubetest)
-    - [Running Tests](#running-tests)
-        - [On an existing cluster](#on-an-existing-cluster)
-        - [With a new cluster on Azure](#with-a-new-cluster-on-azure)
 - [Building Other Components](#building-other-components)
     - [Azure-CNI](#azure-cni)
 - [Using ContainerD](#using-containerd)
@@ -534,101 +529,7 @@ Now, you can `kubectl uncordon` the node and run pods on it again.
 
 ## Testing Kubernetes
 
-This section is still a work in progress. Much of the work needed is already done in https://github.com/e2e-win/e2e-win-prow-deployment
-
-### Sources for kubetest
-
-`kubetest` can also be downloaded from here: https://k8swin.blob.core.windows.net/k8s-windows/testing/kubetest/kubetest_latest/kubetest .
-
-It is updated regularly and already contains the bits necessary for deploying clusters in Azure.
-
-> TODO git repo for test-infra
-
-### Building kubetest
-
-`kubetest` is the end to end test runner for Kubernetes. It's built from the kubernetes/kubernetes repo, but a few changes are needed for it to work on Windows. For the latest, check out the "waiting on merge" column in the [Windows Kubernetes E2E testing board](https://trello.com/b/QexBE5HK/windows-kubernetets-ee-testing)
-
-> Note: this list is probably not up to date - be sure to check the trello board first.
-
-- Cherry-picks needed
-  - https://github.com/kubernetes/kubernetes/pull/69571
-  - https://github.com/kubernetes/kubernetes/pull/69525
-  - https://github.com/kubernetes/kubernetes/pull/63600
-  - https://github.com/kubernetes/kubernetes/pull/69872
-- Windows test container repo list: https://github.com/e2e-win/e2e-win-prow-deployment/blob/master/repo-list.txt
-- Exclusions for Linux-only tests: https://github.com/e2e-win/e2e-win-prow-deployment/blob/master/exclude_conformance_test.txt
-
-The cherry-pick is easy to get. Checkout your cherry-pick branch, and get this additional change:
-
-```powershell
-git remote add adelina-t https://github.com/adelina-t/kubernetes
-git remote add bclau https://github.com/bclau/kubernetes
-git fetch bclau tests-linux-commands-fix
-git cherry-pick 7cd4ebf3c3e7778efeb819c98e35846bd064fd6a
-git fetch bclau tests-hostnetwork
-git cherry-pick f02b6e282fe90a8701cb9c52ef7c163ead083001
-git fetch bclau remove-hardcoded-yaml-images
-git cherry-pick 5a561e8817bed0c45edff4ec6f3d13cb2babf943
-git fetch bclau skip-windows-unrelated-tests
-git cherry-pick ac66ef9c293f79eac2fb62f20027387bc4a5d93f
-git push
-```
-
-Now, you can build the tests in the build VM
-
-```bash
-cd ~/go/src/k8s.io
-git pull
-./build/run.sh make WHAT=test/e2e/e2e.test
-```
-
-Once complete, the binary will be available at:
-`~/go/src/k8s.io/kubernetes/_output/dockerized/bin/linux/amd64/e2e.test`
-
-### Running Tests
-
-#### On an existing cluster
-
-The Kubernetes tests are also in the kubernetes/kubernetes repo. You can easily build and run them from the same VM used to build the Windows binaries. The binary is `e2e.test`.
-
-> The PR fetching script at [scripts/prfetch.sh](scripts/prfetch.sh) also includes the needed changes to `e2e.test`
-
-
-
-```bash
-export KUBE_MASTER=local
-#export KUBE_MASTER_IP=#masterIP # may not actually be needed if KUBECONFIG set
-#export KUBE_MASTER_URL=https://#masterIP # may not actually be needed if KUBECONFIG set
-export KUBECONFIG=/path/to/kubeconfig
-export KUBE_TEST_REPO_LIST=$(pwd)/repo_list.yaml
-
-curl https://raw.githubusercontent.com/e2e-win/e2e-win-prow-deployment/master/repo-list.txt -o repo_list.yaml
-# run tests in background, and capture output to text files
-nohup ./e2e.test --provider=local --ginkgo.noColor --ginkgo.focus=.*NodeConformance.*Conformance.* > test-all.out 2> test-all.err < /dev/null & 
-```
-
-##### NOTE
-
-E2E tests now require all unschedulable nodes to have a label as well as a taint. Be sure to add
-this label to every node you don't wish to run tests on (usually the master node in windows scenarios) otherwise tests won't start.
-
-```bash
-kubectl taint nodes $master_node_name key=value:NoSchedule
-kubectl label nodes $master_node_name node-role.kubernetes.io/master=NoSchedule
-```
-
-
-
-For more on this topic, check out the official [e2e-tests](https://github.com/kubernetes/community/blob/master/contributors/devel/e2e-tests.md#testing-against-local-clusters) doc.
-
-
-#### With a new cluster on Azure
-
-
-
-> TODO cherry-picking PRs from kubernetes/test-infra
-
-> TODO using kubetest to build and test a new cluster
+For steps to build the Kubernetes E2E tests and run them, see [kubernetes-sigs/windows-testing] .
 
 
 ## Building Other Components
@@ -676,3 +577,4 @@ Some of the steps were borrowed from [Kubernetes Dev on Azure](https://github.co
 [AKS-Engine]: https://github.com/Azure/aks-engine
 [Windows Kubernetes The Hard Way]: https://github.com/pjh/kubernetes-the-hard-way
 [WSL2]: https://docs.microsoft.com/en-us/windows/wsl/wsl2-install
+[kubernetes-sigs/windows-testing]: https://github.com/kubernetes-sigs/windows-testing
