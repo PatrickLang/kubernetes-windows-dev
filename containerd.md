@@ -78,8 +78,6 @@ This will produce `_output/containerd.exe` and `ctr.exe`
 
 ### Building CNI meta-plugins compatible with ContainerD
 
-> Note: these steps depend on this PR https://github.com/Microsoft/windows-container-networking/pull/24. If that's not yet merged, pull from the fork listed in the PR
-
 Clone https://github.com/Microsoft/windows-container-networking on your Linux dev/build machine, then run:
 
 ```bash
