@@ -18,7 +18,7 @@ done
 # default to getting the latest args from GitHub
 if [ -z "$jobUrl" ]; then jobUrl="https://raw.githubusercontent.com/kubernetes/test-infra/master/config/jobs/kubernetes-sigs/sig-windows/sig-windows-config.yaml"; fi
 if [ -z "$jobName" ]; then jobName="ci-kubernetes-e2e-aks-engine-azure-master-windows"; fi
-if [ -z "$testArgs" ]; then testArgs=$(curl -SsL $jobUrl | yq ".periodics[] | select(.name == \"$jobName\") | .spec.containers[].args[] | match(\"^--test_args=(.*)\";\"g\") | .captures[0].string "); fi
+if [ -z "$testArgs" ]; then testArgs=$(curl -SsL $jobUrl | yq ".periodics[] | select(.name == \"$jobName\") | .spec.containers[].args[] | match(\"^--test_args=(.*)\";\"g\") | .captures[0].string " | sed "s/\"//g" ); fi
 
 # require existing cluster, else deploy one
 if [ -z "$KUBECONFIG" ]; then echo "Missing KUBECONFIG" >&2; exit 1; fi
@@ -43,5 +43,7 @@ if [ -z "$KUBE_TEST_REPO_LIST" ]; then
   fi
 fi
 
-echo Running $testBin $testArgs
+fullArgs="--provider=skeleton $testArgs"
+
+echo Running $testBin $fullArgs
 
