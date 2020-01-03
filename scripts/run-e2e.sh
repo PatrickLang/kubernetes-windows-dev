@@ -35,5 +35,13 @@ if [ ! -f $testBin ]; then
   cd $oldcd
 fi
 
+# get test prerequisites
+if [ -z "$KUBE_TEST_REPO_LIST" ]; then
+  export KUBE_TEST_REPO_LIST=$(pwd)/repo_list
+  if [ ! -f $KUBE_TEST_REPO_LIST ]; then
+    curl -SsL -o repo_list https://raw.githubusercontent.com/kubernetes-sigs/windows-testing/master/images/image-repo-list
+  fi
+fi
+
 echo Running $testBin $testArgs
 
