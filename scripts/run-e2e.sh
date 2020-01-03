@@ -44,10 +44,9 @@ if [ -z "$KUBE_TEST_REPO_LIST" ]; then
 fi
 
 nodeCount=$(kubectl get node -o wide | grep -e 'Ready.*agent.*Windows' | wc -l)
-fullArgs="--provider=skeleton --num-nodes=$nodeCount --node-os-distro=windows $testArgs"
+fullArgs="--provider=skeleton --num-nodes=$nodeCount --node-os-distro=windows -report-dir logs $testArgs"
 
 echo Running $testBin $fullArgs
-$testBin $fullArgs
-# TODO: Get log files / junit?
+$testBin $fullArgs | tee run-e2e.log
 
 #echo Getting logs from nodes with CollectLogs.ps1
