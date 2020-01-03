@@ -18,7 +18,7 @@ done
 # default to getting the latest args from GitHub
 if [ -z "$jobUrl" ]; then jobUrl="https://raw.githubusercontent.com/kubernetes/test-infra/master/config/jobs/kubernetes-sigs/sig-windows/sig-windows-config.yaml"; fi
 if [ -z "$jobName" ]; then jobName="ci-kubernetes-e2e-aks-engine-azure-master-windows"; fi
-if [ -z "$testArgs" ]; then testArgs=$(curl -SsL $jobUrl | yq ".periodics[] | select(.name == \"$jobName\") | .spec.containers[].args[] | match(\"^--test_args=(.*)\";\"g\") | .captures[0].string " | sed "s/\"//g" ); fi
+if [ -z "$testArgs" ]; then testArgs=$(curl -SsL $jobUrl | yq ".periodics[] | select(.name == \"$jobName\") | .spec.containers[].args[] | match(\"(--ginkgo.*)\";\"g\") | .captures[].string " | sed "s/\"//g" ); fi
 
 # require existing cluster, else deploy one
 if [ -z "$KUBECONFIG" ]; then echo "Missing KUBECONFIG" >&2; exit 1; fi
@@ -43,7 +43,10 @@ if [ -z "$KUBE_TEST_REPO_LIST" ]; then
   fi
 fi
 
-fullArgs="--provider=skeleton $testArgs"
+nodeCount=$(kubectl get node -o wide | grep -e 'Ready.*agent.*Windows' | wc -l)
+fullArgs="--provider=skeleton --num-nodes=$nodeCount --node-distro=windows $testArgs"
 
 echo Running $testBin $fullArgs
+# TODO: Get log files / junit?
 
+#echo Getting logs from nodes with CollectLogs.ps1
