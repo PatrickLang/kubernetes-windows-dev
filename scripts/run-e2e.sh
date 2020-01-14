@@ -43,7 +43,10 @@ if [ -z "$KUBE_TEST_REPO_LIST" ]; then
   fi
 fi
 
-nodeCount=$(kubectl get node -o wide | grep -e 'Ready.*agent.*Windows' | wc -l)
+if [ -z "$nodeCount" ]; then
+  export nodeCount=$(kubectl get node -o wide | grep -e 'Ready.*agent.*Windows' | wc -l)
+fi
+
 fullArgs="--provider=skeleton --num-nodes=$nodeCount --node-os-distro=windows -report-dir logs $testArgs"
 
 echo Running $testBin $fullArgs
