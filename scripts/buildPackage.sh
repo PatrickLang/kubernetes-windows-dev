@@ -2,6 +2,9 @@
 
 set -e -x -o pipefail
 
+GOTAG="1.13.6"
+DOCKERARGS="--network=host"
+
 OUTDIR="$(pwd)/_output"
 if [ ! -d $OUTDIR ]; then
     mkdir $OUTDIR
@@ -21,9 +24,9 @@ cd src/github.com/containerd
 pwd
 git clone https://github.com/containerd/cri.git
 cd cri
-git remote add jterry75 https://github.com/jterry75/cri.git
-git fetch jterry75
-git checkout windows_port
+# git remote add jterry75 https://github.com/jterry75/cri.git
+# git fetch jterry75
+# git checkout windows_port
 git rev-parse HEAD > /output/cri-revision.txt
 GOOS=windows make
 cp _output/* /output
@@ -58,5 +61,5 @@ chmod +x $OUTDIR/buildcni.sh
 
 
 
-docker run -it -v $OUTDIR:/output golang:1.12.4 /bin/bash -c /output/buildcri.sh
-docker run -it -v $OUTDIR:/output golang:1.12.4 /bin/bash -c /output/buildcni.sh
+docker run $DOCKERARGS -v $OUTDIR:/output golang:$GOTAG /bin/bash -c /output/buildcri.sh
+docker run $DOCKERARGS -v $OUTDIR:/output golang:$GOTAG /bin/bash -c /output/buildcni.sh
