@@ -22,14 +22,12 @@ go build -o /output/containerd-shim-runhcs-v1.exe github.com/Microsoft/hcsshim/c
 mkdir -p src/github.com/containerd
 cd src/github.com/containerd
 pwd
-git clone https://github.com/containerd/cri.git
-cd cri
-# git remote add jterry75 https://github.com/jterry75/cri.git
-# git fetch jterry75
-# git checkout windows_port
-git rev-parse HEAD > /output/cri-revision.txt
+git clone https://github.com/containerd/containerd.git
+cd containerd
+git rev-parse HEAD > /output/containerd-revision.txt
 GOOS=windows make
-cp _output/* /output
+cp bin/ctr.exe /output
+cp bin/containerd.exe /output
 apt update
 apt install -y zip
 cd /output

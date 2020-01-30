@@ -55,25 +55,20 @@ GOOS=windows go build github.com/Microsoft/hcsshim/cmd/containerd-shim-runhcs-v1
 ```
 
 
-#### Building the CRI plugin
+#### Building ContainerD
 
-> This is a temporary source location. Sometime in May/June 2019, it should move back to containerd/cri
+There isn't a released version ready for k8s yet, but the master branch of containerd does support CRI for Windows containers. Here's how to build it:
 
 ```bash
 cd $GOPATH
 mkdir -p src/github.com/containerd
 cd src/github.com/containerd
-git clone https://github.com/containerd/cri.git
-cd cri
-git remote add jterry75 https://github.com/jterry75/cri.git
-git fetch jterry75
-git checkout windows_port
-export GOOS=windows
-make
+git clone https://github.com/containerd/containerd.git
+cd containerd
+GOOS=windows make
 ```
 
-This will produce `_output/containerd.exe` and `ctr.exe`
-
+This will produce `bin/containerd.exe` and `ctr.exe`
 
 
 ### Building CNI meta-plugins compatible with ContainerD
