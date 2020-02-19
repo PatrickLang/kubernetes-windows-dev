@@ -2,7 +2,7 @@
 
 set -e -x -o pipefail
 
-GOTAG="1.13.6"
+GOTAG="1.13.7"
 DOCKERARGS="--network=host"
 
 OUTDIR="$(pwd)/_output"
@@ -25,9 +25,17 @@ pwd
 git clone https://github.com/containerd/containerd.git
 cd containerd
 git rev-parse HEAD > /output/containerd-revision.txt
-GOOS=windows make
+make
+# make cri-release # should work, but doesn't
 cp bin/ctr.exe /output
-cp bin/containerd.exe /output
+#cp bin/containerd.exe /output # missing CRI plugin, so build from containerd/cri
+cd \$GOPATH
+cd src/github.com/containerd
+git clone https://github.com/containerd/cri.git
+cd cri
+git rev-parse HEAD > /output/cri-revision.txt
+make containerd
+cp _output/containerd.exe /output
 apt update
 apt install -y zip
 cd /output
