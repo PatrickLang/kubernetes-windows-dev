@@ -531,6 +531,15 @@ Now, you can `kubectl uncordon` the node and run pods on it again.
 
 For steps to build the Kubernetes E2E tests and run them, see [kubernetes-sigs/windows-testing] .
 
+[scripts/run-e2e.sh](./scripts/run-e2e.sh) is a convenience script that can make building & running tests a bit easier.
+
+Examples:
+
+Delete the existing test binary (if there's one), then run SIG-Windows while skipping SIG-Storage tests using 2 nodes:
+
+```
+rm ~/go/src/k8s.io/kubernetes/_output/dockerized/bin/linux/amd64/e2e.test ; nodeCount=2 testArgs='--ginkgo.focus=\[sig-windows\] --ginkgo.skip=\[sig-storage\]' ./run-e2e.sh
+```
 
 ## Building Other Components
 
